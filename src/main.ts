@@ -33,6 +33,9 @@ import '@ionic/vue/css/palettes/dark.system.css';
 
 /* Theme variables */
 import './theme/variables.css';
+document.body.setAttribute('color-theme', 'light');
+
+
 
 const app = createApp(App)
   .use(IonicVue)
