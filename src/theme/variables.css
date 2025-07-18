@@ -1,2 +1,34 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
+// src/theme/variables.scss
+:root {
+    /* 页面背景和字体 */
+    --ion-background-color: #ffffff;
+    --ion-text-color: #000000;
+  
+    /* 工具栏 */
+    --ion-toolbar-background: #ffffff;
+    --ion-toolbar-color: #007aff;
+  
+    /* 卡片背景 */
+    --ion-card-background: #f7f7f7;
+  
+    /* 常用颜色 */
+    --ion-color-primary: #007aff;
+    --ion-color-primary-contrast: #ffffff;
+    --ion-color-secondary: #5856d6;
+    --ion-color-success: #28cd41;
+    --ion-color-warning: #ffc409;
+    --ion-color-danger: #eb445a;
+  
+    /* 按钮圆角/字体可选 */
+    --ion-border-radius: 8px;
+  }
+  
+  /* 注释掉或删除 dark 主题 */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      /* 这里可以注释或保留备用 */
+    }
+  }
+  
