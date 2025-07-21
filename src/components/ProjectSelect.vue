@@ -1,53 +1,65 @@
 <template>
-    <ion-item>
-      <ion-label>Project</ion-label>
-      <ion-select
-        v-model="localValue"
-        interface="popover"
-        :placeholder="placeholder"
+  <div class="custom-label">{{ label }}</div>
+  <ion-item lines="none" class="select-item">
+    <ion-select
+      :value="localValue"
+      @ionChange="onSelectChange"
+      interface="popover"
+      :placeholder="placeholder"
+      class="select-inner"
+    >
+      <ion-select-option
+        v-for="(option, index) in options"
+        :key="index"
+        :value="option.value"
       >
-        <ion-select-option
-          v-for="(option, index) in options"
-          :key="index"
-          :value="option"
-        >
-          {{ option }}
-        </ion-select-option>
-      </ion-select>
-    </ion-item>
+        {{ option.label }}
+      </ion-select-option>
+    </ion-select>
+  </ion-item>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { IonSelect, IonSelectOption, IonItem } from '@ionic/vue'
 
 const props = defineProps({
-  modelValue: {
-    type: String,
-    default: ''
-  },
+  modelValue: String,
   options: {
-    type: Array as () => string[],
+    type: Array as () => { label: string; value: string }[],
     required: true
   },
-  placeholder: {
-    type: String,
-    default: '请选择项目'
-  }
+  placeholder: String,
+  label: String
 })
 
 const emit = defineEmits(['update:modelValue'])
 
 const localValue = ref(props.modelValue)
 
-// 监听父组件更新 → 同步到本地变量
-watch(() => props.modelValue, (val) => {
+watch(() => props.modelValue, val => {
   localValue.value = val
 })
 
-// 监听本地变量变动 → 触发更新到父组件
-watch(localValue, (val) => {
-  emit('update:modelValue', val)
-})
+function onSelectChange(event: CustomEvent) {
+  const newVal = event.detail.value
+  localValue.value = newVal
+  emit('update:modelValue', newVal)
+}
 </script>
+<style>
+.select-item {
+  --padding-start: 0;
+  --inner-padding-start: 0;
+  --inner-padding-end: 0;
+  --background: transparent;
+  margin-left: 0;
+  width: 100%;
+}
 
+.select-inner {
+  width: 100%;
+  text-align: left;
+}
 
+</style>
