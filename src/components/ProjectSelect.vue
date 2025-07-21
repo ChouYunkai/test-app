@@ -1,8 +1,9 @@
 <template>
   <div class="custom-label">{{ label }}</div>
-  <ion-item class="select-item" lines="none">
+  <ion-item lines="none" class="select-item">
     <ion-select
-      v-model="localValue"
+      :value="localValue"
+      @ionChange="onSelectChange"
       interface="popover"
       :placeholder="placeholder"
       class="select-inner"
@@ -18,41 +19,33 @@
   </ion-item>
 </template>
 
-
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { IonSelect, IonSelectOption, IonItem } from '@ionic/vue'
 
 const props = defineProps({
-  modelValue: {
-    type: String,
-    default: ''
-  },
+  modelValue: String,
   options: {
-    type: Array as () => { label: string, value: string }[],
+    type: Array as () => { label: string; value: string }[],
     required: true
   },
-  placeholder: {
-    type: String,
-    default: '请选择项目'
-  },
-  label: {
-    type: String,
-    default: ''
-  }
+  placeholder: String,
+  label: String
 })
 
 const emit = defineEmits(['update:modelValue'])
 
 const localValue = ref(props.modelValue)
 
-watch(() => props.modelValue, (val) => {
+watch(() => props.modelValue, val => {
   localValue.value = val
 })
 
-watch(localValue, (val) => {
-  console.log('emit value', val)  // 加入调试输出
-  emit('update:modelValue', val)
-})
+function onSelectChange(event: CustomEvent) {
+  const newVal = event.detail.value
+  localValue.value = newVal
+  emit('update:modelValue', newVal)
+}
 </script>
 <style>
 .select-item {

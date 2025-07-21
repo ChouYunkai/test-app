@@ -126,17 +126,41 @@
 
     <ion-row class="styled-row">
       <ion-col size="6" class="cell">Type of Cement</ion-col>
-      <ion-col size="6" class="cell">{{ chipForm.cement }}</ion-col>
+      <ion-col size="6" class="cell">
+        <ion-item lines="none" class="input-item">
+        <ion-input
+            v-model="chipForm.cement"
+            placeholder="Add cement info"
+            clear-input
+          ></ion-input>
+        </ion-item>
+      </ion-col>
     </ion-row>
 
     <ion-row class="styled-row">
       <ion-col size="6" class="cell">Fine Aggregate</ion-col>
-      <ion-col size="6" class="cell">{{ chipForm.fineAggregate }}</ion-col>
+      <ion-col size="6" class="cell">
+        <ion-item lines="none" class="input-item">
+        <ion-input
+            v-model="chipForm.fineAggregate"
+            placeholder="Add fineAggregate"
+            clear-input
+          ></ion-input>
+        </ion-item>
+      </ion-col>
     </ion-row>
 
     <ion-row class="styled-row">
       <ion-col size="6" class="cell">Coarse Aggregate</ion-col>
-      <ion-col size="6" class="cell">{{ chipForm.coarseAggregate }}</ion-col>
+      <ion-col size="6" class="cell">
+        <ion-item lines="none" class="input-item">
+        <ion-input
+            v-model="chipForm.coarseAggregate"
+            placeholder="Add coarseAggregate"
+            clear-input
+          ></ion-input>
+        </ion-item>
+      </ion-col>
     </ion-row>
 
     <ion-row class="styled-row">
@@ -168,15 +192,15 @@
       <!-- 上传和保存按钮 -->
       <ion-row class="ion-justify-content-between ion-margin-top">
         <ion-col size="6">
-          <ion-button expand="block" color="secondary" @click="saveLocal" >
+          <ion-button expand="block" color="secondary" @click="saveChipForm" >
             <ion-icon slot="start" :icon="save" class="icon-table"></ion-icon>
-            保存
+            Save
           </ion-button>
         </ion-col>
         <ion-col size="6">
           <ion-button expand="block" color="tertiary" @click="uploadToCloud">
             <ion-icon slot="start" :icon="logoSoundcloud" class="icon-table"></ion-icon>
-            上传
+            Upload
           </ion-button>
         </ion-col>
       </ion-row>
@@ -201,11 +225,13 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  IonInput
 } from '@ionic/vue';
 import { radio, cloud, checkmark, cameraOutline, ellipsisVertical, refresh, logoSoundcloud, save } from 'ionicons/icons';
-import { getCurrentInstance, reactive, ref } from 'vue';
+import { getCurrentInstance, reactive, ref, toRaw } from 'vue';
 import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
+import { Preferences } from '@capacitor/preferences';
 
 const projectList= ['项目 A', '项目 B', '项目 C']
 const cubeSize = ['150*150', '100*100', '50*50']
@@ -244,7 +270,7 @@ interface ChipForm {
 }
 
 // 初始化表单数据
-const chipForm = ref<ChipForm>({
+const chipForm = reactive<ChipForm>({
   company: '浙江工业大学',
   project: '',
   structure: '',
@@ -260,7 +286,8 @@ const chipForm = ref<ChipForm>({
   chipCode: '',
   testDays: ''
 })
-
+const initchipForm = reactive<ChipForm>({ ...chipForm })
+const isRefreshing = ref(false)
 setInterval(() => {
   dateForm.date = getCurrentTime()
 }, 30000) // 每分钟更新一次
@@ -271,17 +298,14 @@ const dateForm = reactive({
 
 const isMenuOpen = ref(false);
 
-
-//刷新
-const  isRefreshing = ref(false);
-
 function handleRefresh() {
-  isRefreshing.value = true;
-  // 模拟异步刷新逻辑（如重新加载数据）
+  isRefreshing.value = true
+
   setTimeout(() => {
-    console.log('刷新完成');
-    isRefreshing.value = false;
-  }, 1000); // 1 秒后关闭“刷新中”状态
+    Object.assign(chipForm, initchipForm) // ✅ 恢复初始状态
+    console.log('✅ 表单已重置')
+    isRefreshing.value = false
+  },100)
 }
 
 // 模拟扫码结果数据结构
@@ -311,10 +335,27 @@ function getCurrentTime() {
 }
 
 // 保存到本地
-const saveLocal = () => {
-  console.log('保存本地数据：', scannedData.value);
-  showToast('保存成功', 'success')
-};
+const saveChipForm = async () => {
+  // 打印字段级别的数据，确认是否绑定成功
+  console.log("当前结构字段：", chipForm.structure)
+  console.log("当前项目字段：", chipForm.project)
+  console.log("整个 chipForm 数据对象：", chipForm)
+
+  try {
+    const jsonString = JSON.stringify(chipForm) // reactive 可直接序列化
+    console.log("最终将被保存的 JSON 字符串：", jsonString)
+
+    await Preferences.set({
+      key: 'chip-form-data',
+      value: jsonString
+    })
+    showToast('Successfully saved', 'success')
+    console.log("✅ chipForm 已成功保存到本地 Preferences")
+  } catch (err) {
+    console.error("❌ 保存失败：", err)
+    showToast('Fail saved', 'success')
+  }
+}
 
 // 上传到云端
 const uploadToCloud = () => {
