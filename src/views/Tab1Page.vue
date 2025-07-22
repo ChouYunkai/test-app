@@ -13,13 +13,13 @@
       
       <!-- 主内容区 -->
       <ion-content>
-      <ion-button expand="block" color="primary" @click="openCamera">
+      <ion-button expand="block" color="primary" @click="scanQRCode">
         <ion-icon slot="start" :icon="cameraOutline"></ion-icon>
         Scan QR code
       </ion-button>
 
       <!-- 新增的 NFC 提示区域 -->
-      <div class="nfc-hint-bfc">
+      <div class="nfc-hint-bfc" @click="startNfcScan" role="button" tabindex="0">
         <ion-icon :icon="radio" class="nfc-icon" />
         <div class="nfc-text">Please move closer to the NFC tag to scan.</div>
       </div>
@@ -243,6 +243,9 @@ import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
 import { Preferences } from '@capacitor/preferences';
 import { useUserStore } from '@/store/user'  // ⚠️ 导入pinia存储个人全局信息
+import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning'
+import { Capacitor } from '@capacitor/core'
+// import { NFC } from '@capawesome-team/capacitor-nfc'
 
 const userStore = useUserStore()
 
@@ -320,6 +323,65 @@ function handleRefresh() {
   },100)
 }
 
+async function scanQRCode() {
+  try {
+    const result = await BarcodeScanner.scan()
+    if (result.barcodes.length > 0) {
+      const content = result.barcodes[0].rawValue
+      console.log('二维码内容:', content)
+      const data = JSON.parse(content)
+      // 示例：自动填入 chipForm 信息
+      chipForm.chipCode = content
+    } else {
+      alert('未检测到二维码')
+    }
+  } catch (err) {
+    showToast('打开摄像头功能暂未实现', 'warning')
+    console.error('扫码失败', err)
+  }
+}
+
+const startNfcScan = async () => {
+  if (!Capacitor.isNativePlatform()) {
+    alert('请在真机中使用 NFC 功能')
+    showToast('打开NFC功能需要插件支持', 'warning')
+    return
+  }
+
+  try {
+    // 检查是否支持 NFC
+    const isAvailable = await NFC.isAvailable()
+    if (!isAvailable.value) {
+      alert('此设备不支持 NFC')
+      return
+    }
+
+    // 添加监听器
+    await NFC.addListener('nfcTagDiscovered', (event) => {
+      const tag = event.tag
+      console.log('扫描到 NFC 标签:', tag)
+
+      const id = tag.id || '无标签 ID'
+      const techList = tag.techList?.join(', ') || '未知协议'
+      const content = tag.ndefMessage
+        ? decodeNdef(tag.ndefMessage)
+        : '无 NDEF 数据'
+
+      alert(`NFC 标签内容：${content}\n协议：${techList}\nID：${id}`)
+
+      // 👉 监听完后可移除监听器（避免重复触发）
+      NFC.removeAllListeners()
+    })
+
+    // 开始监听 NFC（安卓自动激活，iOS 会自动弹出系统框）
+    await NFC.startScanning()
+    console.log('正在监听 NFC 标签...')
+  } catch (error) {
+    console.error('NFC 扫描失败:', error)
+    alert('NFC 扫描失败，请检查权限或设备设置')
+  }
+}
+
 // 模拟扫码结果数据结构
 const scannedData = ref<{ type: string; value: string }[]>([]);
 
@@ -371,8 +433,8 @@ const saveChipForm = async () => {
 
 // 上传到云端
 const uploadToCloud = () => {
-  showToast('上传失败，请检查网络', 'danger')
-  console.log('上传到阿里云：', scannedData.value);
+  showToast('Failly upload, please check the network', 'danger')
+  console.log('上传到华为云：', scannedData.value);
 };
 
 const editableData = ref([
@@ -458,6 +520,7 @@ const uploadTabToCloud = () => {
   padding: 16px;
   background-color: #f1f1f1;
   border-radius: 8px;
+  cursor: pointer; /* ⬅️ 鼠标悬停时为指针 */
 }
 
 .nfc-icon {
