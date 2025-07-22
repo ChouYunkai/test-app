@@ -1,5 +1,5 @@
-import { createRouter, createWebHistory } from '@ionic/vue-router';
-import { RouteRecordRaw } from 'vue-router';
+import { createRouter, createWebHistory } from '@ionic/vue-router'
+import { RouteRecordRaw } from 'vue-router'
 import TabsPage from '../views/TabsPage.vue'
 
 const routes: Array<RouteRecordRaw> = [
@@ -22,12 +22,14 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'tab2',
         component: () => import('@/views/Tab2Page.vue')
-      }
-      // {
-      //   path: 'tab3',
-      //   component: () => import('@/views/Tab3Page.vue')
-      // }
+      },
+      // 你可以添加更多 tabs 路由
     ]
+  },
+  {
+    path: '/scan',
+    name: 'ScanPage',
+    component: () => import('../views/ScanPage.vue') // 不直接 import，也不需要声明类型
   }
 ]
 

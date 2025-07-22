@@ -13,7 +13,7 @@
       
       <!-- 主内容区 -->
       <ion-content>
-      <ion-button expand="block" color="primary" @click="scanQRCode">
+      <ion-button expand="block" color="primary" @click="goToScan">
         <ion-icon slot="start" :icon="cameraOutline"></ion-icon>
         Scan QR code
       </ion-button>
@@ -238,7 +238,7 @@ import {
   IonInput
 } from '@ionic/vue';
 import { radio, cloud, checkmark, cameraOutline, ellipsisVertical, refresh, logoSoundcloud, save } from 'ionicons/icons';
-import { getCurrentInstance, reactive, ref, toRaw, computed } from 'vue';
+import { getCurrentInstance, reactive, ref, toRaw, computed, onMounted, watch } from 'vue';
 import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
 import { Preferences } from '@capacitor/preferences';
@@ -246,7 +246,7 @@ import { useUserStore } from '@/store/user'  // ⚠️ 导入pinia存储个人�
 import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning'
 import { Capacitor } from '@capacitor/core'
 // import { NFC } from '@capawesome-team/capacitor-nfc'
-
+import { useRoute, useRouter } from 'vue-router'
 const userStore = useUserStore()
 
 const projectList= ['项目 A', '项目 B', '项目 C']
@@ -311,7 +311,6 @@ const dateForm = reactive({
   date: getCurrentTime(),
 })
 
-const isMenuOpen = ref(false);
 
 function handleRefresh() {
   isRefreshing.value = true
@@ -322,6 +321,27 @@ function handleRefresh() {
     isRefreshing.value = false
   },100)
 }
+
+const route = useRoute()
+const router = useRouter()
+
+const goToScan = () => {
+  router.push('/scan')
+}
+
+// 监听路由 query 参数，扫码页面跳转回来时带上结果
+watch(
+  () => route.query.scanResult,
+  (newVal) => {
+    if (newVal) {
+      chipForm.value.chipCode = newVal
+      // 可选：清除路由参数，避免重复触发
+      router.replace({ path: route.path, query: {} })
+    }
+  },
+  { immediate: true }
+)
+
 
 async function scanQRCode() {
   try {
@@ -385,18 +405,6 @@ const startNfcScan = async () => {
 // 模拟扫码结果数据结构
 const scannedData = ref<{ type: string; value: string }[]>([]);
 
-// 调用摄像头扫码（待集成二维码插件）
-const openCamera = async () => {
-  // 此处可集成 @capacitor-community/barcode-scanner
-  // 或 cordova-plugin-qrscanner
-  showToast('打开摄像头功能暂未实现', 'warning')
-  console.log('打开相机扫码');
-  // 示例数据写入
-  scannedData.value = [
-    { type: 'QRCode', value: '1234567890' }
-  ];
-};
-
 function getCurrentTime() {
   const now = new Date()
   // 格式化为 YYYY-MM-DD HH:mm
@@ -437,16 +445,6 @@ const uploadToCloud = () => {
   console.log('上传到华为云：', scannedData.value);
 };
 
-const editableData = ref([
-  { name: '', code: '' }
-]);
-
-
-const uploadTabToCloud = () => {
-  dateForm.date = getCurrentTime()
-  // 你可以在此调用阿里云 API（比如 oss putObject、http 接口等）
-  console.log('上传数据：', editableData.value);
-};
 
 </script>
 
