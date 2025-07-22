@@ -192,13 +192,13 @@
       <!-- 上传和保存按钮 -->
       <ion-row class="ion-justify-content-between ion-margin-top">
         <ion-col size="6">
-          <ion-button expand="block" color="secondary" @click="saveChipForm" >
+          <ion-button expand="block" color="secondary" v-if="userStore.role === 'Administrator'" @click="saveChipForm" >
             <ion-icon slot="start" :icon="save" class="icon-table"></ion-icon>
             Save
           </ion-button>
         </ion-col>
         <ion-col size="6">
-          <ion-button expand="block" color="tertiary" @click="uploadToCloud">
+          <ion-button expand="block" color="tertiary" v-if="userStore.role === 'Administrator'" @click="uploadToCloud">
             <ion-icon slot="start" :icon="logoSoundcloud" class="icon-table"></ion-icon>
             Upload
           </ion-button>
@@ -232,7 +232,8 @@ import { getCurrentInstance, reactive, ref, toRaw } from 'vue';
 import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
 import { Preferences } from '@capacitor/preferences';
-
+import { useUserStore } from '@/store/user'  // ⚠️ 导入pinia存储个人全局信息
+const userStore = useUserStore()
 const projectList= ['项目 A', '项目 B', '项目 C']
 const cubeSize = ['150*150', '100*100', '50*50']
 const testDays = ['7 days', '14 days', '28 days']
@@ -248,7 +249,6 @@ const projectOptions = projectList.map(item => ({
   label: item,
   value: item
 }))
-
 const { showToast } = useToast()
 
 
@@ -353,7 +353,7 @@ const saveChipForm = async () => {
     console.log("✅ chipForm 已成功保存到本地 Preferences")
   } catch (err) {
     console.error("❌ 保存失败：", err)
-    showToast('Fail saved', 'success')
+    showToast('Failly saved', 'danger')
   }
 }
 
@@ -367,12 +367,6 @@ const editableData = ref([
   { name: '', code: '' }
 ]);
 
-
-const saveLocalTab = () => {
-  dateForm.date = getCurrentTime()
-  localStorage.setItem('rfid-table-data', JSON.stringify(editableData.value));
-  console.log('保存成功');
-};
 
 const uploadTabToCloud = () => {
   dateForm.date = getCurrentTime()

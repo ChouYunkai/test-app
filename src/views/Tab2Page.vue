@@ -8,13 +8,13 @@
 
     <ion-content :fullscreen="true" class="ion-padding page-bg">
       <!-- 个人信息卡片 -->
-      <ion-card class="profile-card" v-if="user.loggedIn">
+      <ion-card class="profile-card" v-if="userStore.loggedIn">
         <ion-card-content class="profile-content">
           <ion-avatar class="profile-avatar">
             <img src="https://www.gravatar.com/avatar?d=mp" />
           </ion-avatar>
-          <h2 class="username">{{ user.name }}</h2>
-          <p class="user-email">{{ user.email }}</p>
+          <h2 class="username">{{ userStore.name }}</h2>
+          <p class="user-email">{{ userStore.email }}</p>
         </ion-card-content>
       </ion-card>
 
@@ -24,22 +24,22 @@
       </div>
 
       <!-- 账号信息卡片 -->
-      <ion-card class="info-card" v-if="user.loggedIn">
+      <ion-card class="info-card" v-if="userStore.loggedIn">
         <ion-list lines="none">
           <ion-item>
             <ion-icon :icon="personCircle" slot="start" color="primary" />
             <ion-label>Role</ion-label>
-            <ion-note slot="end">{{ user.role }}</ion-note>
+            <ion-note slot="end">{{ userStore.role }}</ion-note>
           </ion-item>
           <ion-item>
             <ion-icon :icon="shieldCheckmark" slot="start" color="secondary" />
             <ion-label>Permission Level</ion-label>
-            <ion-note slot="end">{{ user.permissionLevel }}</ion-note>
+            <ion-note slot="end">{{ userStore.permissionLevel }}</ion-note>
           </ion-item>
           <ion-item>
             <ion-icon :icon="business" slot="start" color="tertiary" />
             <ion-label>Organization</ion-label>
-            <ion-note slot="end">{{ user.organization }}</ion-note>
+            <ion-note slot="end">{{ userStore.organization }}</ion-note>
           </ion-item>
         </ion-list>
       </ion-card>
@@ -47,25 +47,35 @@
       <!-- 操作按钮卡片 -->
       <ion-card class="action-card">
         <ion-list lines="inset">
-          <ion-item button v-if="user.loggedIn" @click="managePermissions">
+          <ion-item button v-if="userStore.loggedIn" @click="managePermissions">
             <ion-icon slot="start" :icon="settingsOutline" />
             <ion-label>Manage Permissions</ion-label>
           </ion-item>
-          <ion-item button v-if="user.loggedIn" @click="changePassword">
+          <ion-item button v-if="userStore.loggedIn" @click="changePassword">
             <ion-icon slot="start" :icon="keyIcon" />
             <ion-label>Change Password</ion-label>
           </ion-item>
-          <ion-item button v-if="!user.loggedIn" @click="openLoginModal" lines="none">
+          <ion-item button v-if="!userStore.loggedIn" @click="openLoginModal" lines="none">
             <ion-icon slot="start" :icon="logInOutline" color="primary" />
             <ion-label color="primary">Login</ion-label>
           </ion-item>
-          <ion-item button v-if="user.loggedIn" @click="logout" lines="none">
+          <ion-item button v-if="userStore.loggedIn" @click="logout" lines="none">
             <ion-icon slot="start" :icon="logOutOutline" color="danger" />
             <ion-label color="danger">Logout</ion-label>
           </ion-item>
         </ion-list>
       </ion-card>
 
+      <ion-card class="action-card">
+        <ion-list lines="none">
+          <ion-item>
+            <ion-icon :icon="mail" slot="start" color="primary" />
+            <ion-label>Developer
+            </ion-label>
+            <ion-note slot="end">1207099632@qq.com</ion-note>
+          </ion-item>
+        </ion-list>  
+      </ion-card>
       <!-- 登录弹窗 -->
       <ion-modal :is-open="showLoginModal" @did-dismiss="closeLoginModal">
         <ion-header>
@@ -126,26 +136,26 @@ import {
   settingsOutline,
   keyOutline as keyIcon,
   logInOutline,
-  logOutOutline
+  logOutOutline,
+  mail
 } from 'ionicons/icons'
-
+import { useUserStore } from '@/store/user'
 // 用户状态，初始未登录
-const user = reactive({
-  loggedIn: false,
-  name: '',
-  email: '',
-  role: '',
-  permissionLevel: '',
-  organization: ''
-})
-
+// const user = reactive({
+//   loggedIn: false,
+//   name: '',
+//   email: '',
+//   role: '',
+//   permissionLevel: '',
+//   organization: ''
+// })
 const showLoginModal = ref(false)
 const loading = ref(false)
-
 const loginForm = reactive({
   username: '',
   password: ''
 })
+const userStore = useUserStore()
 
 function openLoginModal() {
   showLoginModal.value = true
@@ -166,33 +176,29 @@ async function submitLogin() {
   }
   loading.value = true
   try {
-    // TODO: 替换为真实的登录API请求
+    // 模拟后端返回
     await new Promise(resolve => setTimeout(resolve, 1000))
 
-    // 模拟成功返回用户信息
-    user.loggedIn = true
-    user.name = 'Zhou Yunkai'
-    user.email = 'zk.zhou@example.com'
-    user.role = 'Administrator'
-    user.permissionLevel = 'Advanced'
-    user.organization = 'Tsinghua University'
+    userStore.login({
+      name: 'Zhou Yunkai',
+      email: 'zk.zhou@example.com',
+      role: 'Administrator',
+      permissionLevel: 'Advanced',
+      organization: 'ZJUT'
+    })
 
     closeLoginModal()
   } catch (e) {
-    alert('Login failed, please try again.')
+    alert('Login failed')
   } finally {
     loading.value = false
   }
 }
 
 function logout() {
-  user.loggedIn = false
-  user.name = ''
-  user.email = ''
-  user.role = ''
-  user.permissionLevel = ''
-  user.organization = ''
+  userStore.logout()
 }
+
 
 function managePermissions() {
   console.log('Go to permissions page')
