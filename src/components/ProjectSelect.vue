@@ -7,6 +7,7 @@
       interface="popover"
       :placeholder="placeholder"
       class="select-inner"
+      :disabled="disabled"
     >
       <ion-select-option
         v-for="(option, index) in options"
@@ -30,7 +31,11 @@ const props = defineProps({
     required: true
   },
   placeholder: String,
-  label: String
+  label: String,
+  disabled: {
+    type: Boolean,
+    default: false
+  }
 })
 
 const emit = defineEmits(['update:modelValue'])

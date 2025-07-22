@@ -140,15 +140,10 @@ import {
   mail
 } from 'ionicons/icons'
 import { useUserStore } from '@/store/user'
-// 用户状态，初始未登录
-// const user = reactive({
-//   loggedIn: false,
-//   name: '',
-//   email: '',
-//   role: '',
-//   permissionLevel: '',
-//   organization: ''
-// })
+import { useToast } from '@/components/useToast'
+
+
+const { showToast } = useToast()
 const showLoginModal = ref(false)
 const loading = ref(false)
 const loginForm = reactive({
@@ -156,6 +151,8 @@ const loginForm = reactive({
   password: ''
 })
 const userStore = useUserStore()
+
+
 
 function openLoginModal() {
   showLoginModal.value = true
@@ -201,10 +198,12 @@ function logout() {
 
 
 function managePermissions() {
+  showToast('Please connect manager', 'danger')
   console.log('Go to permissions page')
 }
 
 function changePassword() {
+  showToast('Please connect manager', 'danger')
   console.log('Navigate to change password')
 }
 </script>

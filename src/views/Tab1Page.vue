@@ -44,6 +44,7 @@
           v-model="chipForm.project"
           :options="projectOptions"
           placeholder="Select project"
+          :disabled="!isAdmin"
         />
       </ion-col>
     </ion-row>
@@ -56,6 +57,7 @@
             v-model="chipForm.structure"
             placeholder="Add Structure"
             clear-input
+           :disabled="!isAdmin"
           ></ion-input>
         </ion-item>
       </ion-col>
@@ -69,6 +71,7 @@
             v-model="chipForm.contractor"
             placeholder="Add Contractor"
             clear-input
+           :disabled="!isAdmin"
           ></ion-input>
         </ion-item>
       </ion-col>
@@ -82,6 +85,7 @@
             v-model="chipForm.supplier"
             placeholder="Add Suppier "
             clear-input
+           :disabled="!isAdmin"
           ></ion-input>
         </ion-item>
       </ion-col>
@@ -95,6 +99,7 @@
             v-model="chipForm.preparedBy"
             placeholder="Add Info."
             clear-input
+           :disabled="!isAdmin"
           ></ion-input>
         </ion-item>
       </ion-col>
@@ -107,6 +112,7 @@
           v-model="chipForm.cubeSize"
           :options="cubeOptions"
           placeholder="Select Cube Size"
+          :disabled="!isAdmin"
         />
       </ion-col>
     </ion-row>
@@ -119,6 +125,7 @@
             v-model="chipForm.grade"
             placeholder="Add Grade"
             clear-input
+            :disabled="!isAdmin"
           ></ion-input>
         </ion-item>
       </ion-col>
@@ -132,6 +139,7 @@
             v-model="chipForm.cement"
             placeholder="Add cement info"
             clear-input
+            :disabled="!isAdmin"
           ></ion-input>
         </ion-item>
       </ion-col>
@@ -145,6 +153,7 @@
             v-model="chipForm.fineAggregate"
             placeholder="Add fineAggregate"
             clear-input
+            :disabled="!isAdmin"
           ></ion-input>
         </ion-item>
       </ion-col>
@@ -185,6 +194,7 @@
           v-model="chipForm.testDays"
           :options="testDaysOptions"
           placeholder="Select testdays"
+          :disabled="!isAdmin"
         />
       </ion-col>
     </ion-row>
@@ -228,12 +238,14 @@ import {
   IonInput
 } from '@ionic/vue';
 import { radio, cloud, checkmark, cameraOutline, ellipsisVertical, refresh, logoSoundcloud, save } from 'ionicons/icons';
-import { getCurrentInstance, reactive, ref, toRaw } from 'vue';
+import { getCurrentInstance, reactive, ref, toRaw, computed } from 'vue';
 import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
 import { Preferences } from '@capacitor/preferences';
 import { useUserStore } from '@/store/user'  // ⚠️ 导入pinia存储个人全局信息
+
 const userStore = useUserStore()
+
 const projectList= ['项目 A', '项目 B', '项目 C']
 const cubeSize = ['150*150', '100*100', '50*50']
 const testDays = ['7 days', '14 days', '28 days']
@@ -250,7 +262,7 @@ const projectOptions = projectList.map(item => ({
   value: item
 }))
 const { showToast } = useToast()
-
+const isAdmin = computed(() => userStore.role === 'Administrator')
 
 interface ChipForm {
   company: string
