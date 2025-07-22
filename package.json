@@ -12,6 +12,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@capacitor-mlkit/barcode-scanning": "^7.2.1",
+    "@capacitor/android": "^7.4.2",
     "@capacitor/app": "7.0.1",
     "@capacitor/core": "^7.4.2",
     "@capacitor/haptics": "7.0.1",
@@ -20,8 +22,8 @@
     "@capacitor/status-bar": "7.0.1",
     "@ionic/vue": "^8.0.0",
     "@ionic/vue-router": "^8.0.0",
-    "capacitor-nfc": "^0.1.5",
     "ionicons": "^7.0.0",
+    "pinia": "^3.0.3",
     "vue": "^3.3.0",
     "vue-i18n": "^11.1.9",
     "vue-router": "^4.2.0"
