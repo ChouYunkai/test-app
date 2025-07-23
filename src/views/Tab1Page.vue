@@ -311,7 +311,6 @@ const dateForm = reactive({
   date: getCurrentTime(),
 })
 
-const isMenuOpen = ref(false);
 
 function handleRefresh() {
   isRefreshing.value = true
@@ -348,54 +347,41 @@ const startNfcScan = async () => {
     return
   }
 
-  try {
-    // 检查是否支持 NFC
-    const isAvailable = await NFC.isAvailable()
-    if (!isAvailable.value) {
-      alert('此设备不支持 NFC')
-      return
-    }
+  // try {
+  //   // 检查是否支持 NFC
+  //   const isAvailable = await NFC.isAvailable()
+  //   if (!isAvailable.value) {
+  //     alert('此设备不支持 NFC')
+  //     return
+  //   }
 
-    // 添加监听器
-    await NFC.addListener('nfcTagDiscovered', (event) => {
-      const tag = event.tag
-      console.log('扫描到 NFC 标签:', tag)
+  //   // 添加监听器
+  //   await NFC.addListener('nfcTagDiscovered', (event) => {
+  //     const tag = event.tag
+  //     console.log('扫描到 NFC 标签:', tag)
 
-      const id = tag.id || '无标签 ID'
-      const techList = tag.techList?.join(', ') || '未知协议'
-      const content = tag.ndefMessage
-        ? decodeNdef(tag.ndefMessage)
-        : '无 NDEF 数据'
+  //     const id = tag.id || '无标签 ID'
+  //     const techList = tag.techList?.join(', ') || '未知协议'
+  //     const content = tag.ndefMessage
+  //       ? decodeNdef(tag.ndefMessage)
+  //       : '无 NDEF 数据'
 
-      alert(`NFC 标签内容：${content}\n协议：${techList}\nID：${id}`)
+  //     alert(`NFC 标签内容：${content}\n协议：${techList}\nID：${id}`)
 
-      // 👉 监听完后可移除监听器（避免重复触发）
-      NFC.removeAllListeners()
-    })
+  //     // 👉 监听完后可移除监听器（避免重复触发）
+  //     NFC.removeAllListeners()
+  //   })
 
-    // 开始监听 NFC（安卓自动激活，iOS 会自动弹出系统框）
-    await NFC.startScanning()
-    console.log('正在监听 NFC 标签...')
-  } catch (error) {
-    console.error('NFC 扫描失败:', error)
-    alert('NFC 扫描失败，请检查权限或设备设置')
-  }
+  //   // 开始监听 NFC（安卓自动激活，iOS 会自动弹出系统框）
+  //   await NFC.startScanning()
+  //   console.log('正在监听 NFC 标签...')
+  // } catch (error) {
+  //   console.error('NFC 扫描失败:', error)
+  //   alert('NFC 扫描失败，请检查权限或设备设置')
+  // }
 }
 
-// 模拟扫码结果数据结构
-const scannedData = ref<{ type: string; value: string }[]>([]);
 
-// 调用摄像头扫码（待集成二维码插件）
-const openCamera = async () => {
-  // 此处可集成 @capacitor-community/barcode-scanner
-  // 或 cordova-plugin-qrscanner
-  showToast('打开摄像头功能暂未实现', 'warning')
-  console.log('打开相机扫码');
-  // 示例数据写入
-  scannedData.value = [
-    { type: 'QRCode', value: '1234567890' }
-  ];
-};
 
 function getCurrentTime() {
   const now = new Date()
@@ -434,19 +420,9 @@ const saveChipForm = async () => {
 // 上传到云端
 const uploadToCloud = () => {
   showToast('Failly upload, please check the network', 'danger')
-  console.log('上传到华为云：', scannedData.value);
+
 };
 
-const editableData = ref([
-  { name: '', code: '' }
-]);
-
-
-const uploadTabToCloud = () => {
-  dateForm.date = getCurrentTime()
-  // 你可以在此调用阿里云 API（比如 oss putObject、http 接口等）
-  console.log('上传数据：', editableData.value);
-};
 
 </script>
 
