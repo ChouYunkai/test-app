@@ -167,6 +167,7 @@
             v-model="chipForm.coarseAggregate"
             placeholder="Add coarseAggregate"
             clear-input
+            :disabled="!isAdmin"
           ></ion-input>
         </ion-item>
       </ion-col>
@@ -179,7 +180,16 @@
 
     <ion-row class="styled-row">
       <ion-col size="6" class="cell">试块编号</ion-col>
-      <ion-col size="6" class="cell">{{ chipForm.chipCode }}</ion-col>
+      <ion-col size="6" class="cell">
+        <ion-item lines="none" class="input-item">
+        <ion-input
+            v-model="chipForm.chipCode"
+            placeholder="Add chipcode"
+            clear-input
+            :disabled="!isAdmin"
+          ></ion-input>
+        </ion-item>
+      </ion-col>
     </ion-row>
 
     <ion-row class="styled-row">
@@ -202,9 +212,9 @@
       <!-- 上传和保存按钮 -->
       <ion-row class="ion-justify-content-between ion-margin-top">
         <ion-col size="6">
-          <ion-button expand="block" color="secondary" v-if="userStore.role === 'Administrator'" @click="saveChipForm" >
-            <ion-icon slot="start" :icon="save" class="icon-table"></ion-icon>
-            Save
+          <ion-button expand="block" color="secondary" v-if="userStore.role === 'Administrator'" @click="fetchChipFormByCode" >
+            <ion-icon slot="start" :icon="search" class="icon-table"></ion-icon>
+            Search
           </ion-button>
         </ion-col>
         <ion-col size="6">
@@ -237,7 +247,7 @@ import {
   IonCol,
   IonInput
 } from '@ionic/vue';
-import { radio, cloud, checkmark, cameraOutline, ellipsisVertical, refresh, logoSoundcloud, save } from 'ionicons/icons';
+import { radio, cloud, checkmark, cameraOutline, ellipsisVertical, refresh, logoSoundcloud, save, search } from 'ionicons/icons';
 import { getCurrentInstance, reactive, ref, toRaw, computed } from 'vue';
 import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
@@ -246,7 +256,7 @@ import { useUserStore } from '@/store/user'  // ⚠️ 导入pinia存储个人�
 import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning'
 import { Capacitor } from '@capacitor/core'
 // import { NFC } from '@capawesome-team/capacitor-nfc'
-
+import axios from 'axios'
 const userStore = useUserStore()
 
 const projectList= ['项目 A', '项目 B', '项目 C']
@@ -282,6 +292,11 @@ interface ChipForm {
   admixture: string
   chipCode: string
   testDays: string
+}
+
+interface UploadResponse {
+  message: string
+  insertId: number
 }
 
 // 初始化表单数据
@@ -335,9 +350,9 @@ async function scanQRCode() {
       alert('未检测到二维码')
     }
   } catch (err) {
-    showToast('打开摄像头功能暂未实现', 'warning')
     console.error('扫码失败', err)
   }
+  showToast('打开摄像头功能暂未实现', 'warning')
 }
 
 const startNfcScan = async () => {
@@ -395,33 +410,69 @@ function getCurrentTime() {
 }
 
 // 保存到本地
-const saveChipForm = async () => {
-  // 打印字段级别的数据，确认是否绑定成功
-  console.log("当前结构字段：", chipForm.structure)
-  console.log("当前项目字段：", chipForm.project)
-  console.log("整个 chipForm 数据对象：", chipForm)
+// const saveChipForm = async () => {
+//   // 打印字段级别的数据，确认是否绑定成功
+//   console.log("当前结构字段：", chipForm.structure)
+//   console.log("当前项目字段：", chipForm.project)
+//   console.log("整个 chipForm 数据对象：", chipForm)
+
+//   try {
+//     const jsonString = JSON.stringify(chipForm) // reactive 可直接序列化
+//     console.log("最终将被保存的 JSON 字符串：", jsonString)
+
+//     await Preferences.set({
+//       key: 'chip-form-data',
+//       value: jsonString
+//     })
+//     showToast('Successfully saved', 'success')
+//     console.log("✅ chipForm 已成功保存到本地 Preferences")
+//   } catch (err) {
+//     console.error("❌ 保存失败：", err)
+//     showToast('Failly saved', 'danger')
+//   }
+// }
+
+const fetchChipFormByCode = async () => {
+  if (!chipForm.chipCode.trim()) {
+    showToast('请输入试块编号', 'warning')
+    return
+  }
 
   try {
-    const jsonString = JSON.stringify(chipForm) // reactive 可直接序列化
-    console.log("最终将被保存的 JSON 字符串：", jsonString)
-
-    await Preferences.set({
-      key: 'chip-form-data',
-      value: jsonString
-    })
-    showToast('Successfully saved', 'success')
-    console.log("✅ chipForm 已成功保存到本地 Preferences")
-  } catch (err) {
-    console.error("❌ 保存失败：", err)
-    showToast('Failly saved', 'danger')
+    const res = await axios.get<ChipForm>(`http://localhost:3001/api/chipform/${chipForm.chipCode}`)
+    Object.assign(chipForm, res.data)
+    showToast('✅ 查询成功，数据已加载', 'success')
+    console.log("查询结果：", res.data)
+  } catch (err: any) {
+    if (err.response?.status === 404) {
+      showToast('未找到对应试块编号', 'danger')
+    } else {
+      console.error("查询失败：", err)
+      showToast('服务器异常或网络错误', 'danger')
+    }
   }
 }
 
 // 上传到云端
-const uploadToCloud = () => {
-  showToast('Failly upload, please check the network', 'danger')
+const uploadToCloud = async () => {
+  try {
+    const jsonString = JSON.stringify(chipForm) // 你已有
+    console.log("🌐 准备上传到云端：", jsonString)
 
-};
+    const res = await axios.post<UploadResponse>('http://localhost:3001/api/chipform',chipForm)
+
+    if (res.status === 201) {
+      showToast('✅ 上传成功', 'success')
+      console.log("✅ 成功插入数据库，ID：", res.data.insertId)
+    } else {
+      showToast('❌ 上传失败', 'danger')
+      console.error("⚠️ 插入失败：", res.data)
+    }
+  } catch (err) {
+    console.error("❌ 网络或服务器错误：", err)
+    showToast('❌ 上传失败，请检查网络或服务器', 'danger')
+  }
+}
 
 
 </script>
