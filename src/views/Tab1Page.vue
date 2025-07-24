@@ -452,9 +452,17 @@ const fetchChipFormByCode = async () => {
     }
   }
 }
+//校验函数
+const hasEmptyField = (obj: Record<string, any>): boolean => {
+  return Object.values(obj).some(value => value === '' || value === null || value === undefined)
+}
 
 // 上传到云端
 const uploadToCloud = async () => {
+  if (hasEmptyField(chipForm)) {
+    showToast('❌ 请填写完整所有字段后再上传', 'danger')
+    return
+  }
   try {
     const jsonString = JSON.stringify(chipForm) // 你已有
     console.log("🌐 准备上传到云端：", jsonString)
