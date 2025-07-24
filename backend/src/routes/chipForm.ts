@@ -46,11 +46,30 @@ router.post('/', async (req, res) => {
 // GET /api/chipform/:chipCode
 router.get('/:chipCode', async (req, res) => {
     const { chipCode } = req.params;
-  
+    const sql = `
+    SELECT
+      id,
+      company,
+      project,
+      structure,
+      contractor,
+      supplier,
+      prepared_by AS preparedBy,
+      cube_size AS cubeSize,
+      grade,
+      cement,
+      fine_aggregate AS fineAggregate,
+      coarse_aggregate AS coarseAggregate,
+      admixture,
+      chip_code AS chipCode,
+      test_days AS testDays,
+      created_at AS createdAt
+    FROM chip_form
+    WHERE chip_code = ?
+    `
     try {
       const [rows] = await pool.query<RowDataPacket[]>(
-        'SELECT * FROM chip_form WHERE chip_code = ?',
-        [chipCode]
+        sql,[chipCode]
       );
       console.log('查询结果条数:', rows.length);
       if (rows.length > 0) {
