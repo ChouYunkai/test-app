@@ -83,4 +83,35 @@ router.get('/:chipCode', async (req, res) => {
     }
   });
   
+// 登录接口
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body
+
+  if (!email || !password) {
+    return res.status(400).json({ message: '邮箱和密码不能为空' })
+  }
+
+  try {
+    const [rows] = await pool.query(
+      `SELECT name, email, role, permission_level, organization 
+       FROM users 
+       WHERE email = ? AND password = ?`,
+      [email, password]
+    )
+
+    const result = rows as any[]
+
+    if (result.length === 0) {
+      return res.status(401).json({ message: '账号或密码错误' })
+    }
+
+    const user = result[0]
+
+    return res.status(200).json(user)
+  } catch (error) {
+    console.error('数据库出错:', error)
+    return res.status(500).json({ message: '服务器内部错误' })
+  }
+})
+
 export default router;

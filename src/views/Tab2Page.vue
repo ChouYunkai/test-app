@@ -152,11 +152,55 @@ const loginForm = reactive({
 })
 const userStore = useUserStore()
 
-
-
 function openLoginModal() {
   showLoginModal.value = true
 }
+
+async function submitLogin() {
+  if (!loginForm.username || !loginForm.password) {
+    showToast('请输入用户名和密码', 'warning')
+    return
+  }
+
+  loading.value = true
+  try {
+    const response = await fetch('http://localhost:3001/api/chipform/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: loginForm.username,  // 如果后端用email做用户名
+        password: loginForm.password
+      })
+    })
+
+    if (!response.ok) {
+      const err = await response.json()
+      showToast('登录失败: ' + err.message, 'danger')
+      loading.value = false
+      return
+    }
+
+    const data = await response.json()
+
+    userStore.login({
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      permissionLevel: data.permission_level,
+      organization: data.organization
+    })
+    showToast(`欢迎回来，${userStore.name}`, 'success')
+    // 关闭模态框
+    closeLoginModal()
+
+  } catch (error) {
+    showToast('请求异常，请稍后重试', 'danger')
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
+}
+
 
 function closeLoginModal() {
   showLoginModal.value = false
@@ -164,32 +208,6 @@ function closeLoginModal() {
   loginForm.username = ''
   loginForm.password = ''
   loading.value = false
-}
-
-async function submitLogin() {
-  if (!loginForm.username || !loginForm.password) {
-    alert('Please enter username and password')
-    return
-  }
-  loading.value = true
-  try {
-    // 模拟后端返回
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    userStore.login({
-      name: 'Zhou Yunkai',
-      email: 'zk.zhou@example.com',
-      role: 'Administrator',
-      permissionLevel: 'Advanced',
-      organization: 'ZJUT'
-    })
-
-    closeLoginModal()
-  } catch (e) {
-    alert('Login failed')
-  } finally {
-    loading.value = false
-  }
 }
 
 function logout() {
