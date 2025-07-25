@@ -8,9 +8,7 @@ export default defineConfig({
   plugins: [
     vue(),
     legacy({
-      targets: ['defaults', 'Android >= 6', 'Chrome >= 60'], // ✅ 添加 Android 兼容范围
-      additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
-      modernPolyfills: true,
+      targets: ['defaults', 'not IE 11'],
     })
   ],
   resolve: {

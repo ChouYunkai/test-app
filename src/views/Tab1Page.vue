@@ -238,20 +238,16 @@ import {
   IonContent,
   IonButton,
   IonIcon,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
   IonGrid,
   IonRow,
   IonCol,
   IonInput
 } from '@ionic/vue';
-import { radio, cloud, checkmark, cameraOutline, ellipsisVertical, refresh, logoSoundcloud, save, search } from 'ionicons/icons';
-import { getCurrentInstance, reactive, ref, toRaw, computed } from 'vue';
+import { radio, cameraOutline, refresh, logoSoundcloud, search } from 'ionicons/icons';
+import {reactive, ref, computed } from 'vue';
 import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
-import { Preferences } from '@capacitor/preferences';
+// import { Preferences } from '@capacitor/preferences';
 import { useUserStore } from '@/store/user'  // ⚠️ 导入pinia存储个人全局信息
 import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning'
 import { Capacitor } from '@capacitor/core'
@@ -343,7 +339,7 @@ async function scanQRCode() {
     if (result.barcodes.length > 0) {
       const content = result.barcodes[0].rawValue
       console.log('二维码内容:', content)
-      const data = JSON.parse(content)
+      // const data = JSON.parse(content)
       // 示例：自动填入 chipForm 信息
       chipForm.chipCode = content
     } else {
@@ -395,8 +391,6 @@ const startNfcScan = async () => {
   //   alert('NFC 扫描失败，请检查权限或设备设置')
   // }
 }
-
-
 
 function getCurrentTime() {
   const now = new Date()
@@ -452,9 +446,17 @@ const fetchChipFormByCode = async () => {
     }
   }
 }
+//校验函数
+const hasEmptyField = (obj: Record<string, any>): boolean => {
+  return Object.values(obj).some(value => value === '' || value === null || value === undefined)
+}
 
 // 上传到云端
 const uploadToCloud = async () => {
+  if (hasEmptyField(chipForm)) {
+    showToast('❌ 请填写完整所有字段后再上传', 'danger')
+    return
+  }
   try {
     const jsonString = JSON.stringify(chipForm) // 你已有
     console.log("🌐 准备上传到云端：", jsonString)
@@ -463,7 +465,7 @@ const uploadToCloud = async () => {
 
     if (res.status === 201) {
       showToast('✅ 上传成功', 'success')
-      console.log("✅ 成功插入数据库，ID：", res.data.insertId)
+      console.log("✅ 成功插入数据库,ID:", res.data.insertId)
     } else {
       showToast('❌ 上传失败', 'danger')
       console.error("⚠️ 插入失败：", res.data)
