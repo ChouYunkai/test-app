@@ -1,18 +1,26 @@
 <template>
   <ion-page>
       <ion-header>
-      <ion-toolbar>
-        <ion-title class="home-title">Index</ion-title>
-        <ion-buttons slot="end">
-          <ion button @click="handleRefresh">
-            <ion-icon slot="icon-only" :icon="refresh"></ion-icon>
-          </ion>
-        </ion-buttons>
-      </ion-toolbar>
+        <ion-toolbar class="background-gradient">
+          <ion-title class="home-title">
+            <div class="title-wrapper">
+              <span class="title-content"> 
+                <ion-icon :icon="home" class="title-icon" />
+                Index
+              </span>
+            </div>
+          </ion-title>
+
+          <ion-buttons slot="end">
+            <ion-button @click="handleRefresh">
+              <ion-icon slot="icon-only" :icon="refresh" />
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
       </ion-header>
       
       <!-- 主内容区 -->
-      <ion-content>
+      <ion-content >
       <ion-button expand="block" color="primary" @click="scanQRCode">
         <ion-icon slot="start" :icon="cameraOutline"></ion-icon>
         Scan QR code
@@ -243,7 +251,7 @@ import {
   IonCol,
   IonInput
 } from '@ionic/vue';
-import { radio, cameraOutline, refresh, logoSoundcloud, search } from 'ionicons/icons';
+import { radio, cameraOutline, refresh, logoSoundcloud, search, home } from 'ionicons/icons';
 import {reactive, ref, computed } from 'vue';
 import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
@@ -253,6 +261,7 @@ import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning'
 import { Capacitor } from '@capacitor/core'
 // import { NFC } from '@capawesome-team/capacitor-nfc'
 import axios from 'axios'
+
 const userStore = useUserStore()
 
 const projectList= ['项目 A', '项目 B', '项目 C']
@@ -480,6 +489,28 @@ const uploadToCloud = async () => {
 </script>
 
 <style scoped>
+.title-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 100%; /* 确保高度继承，便于垂直居中 */
+}
+
+.title-icon {
+  font-size: 20px;
+  color: #000;
+}
+.background-gradient {
+    --background: 
+      linear-gradient(to bottom, transparent, #fff 240px),
+      radial-gradient(20% 150px at 70% 230px, rgba(255, 255, 255, 0.5), transparent),
+      radial-gradient(40% 180px at 80% 50px, rgba(249, 236, 224, 0.35), transparent),
+      radial-gradient(50% 300px at 90% 100px, rgba(255, 255, 255, 0.76), transparent),
+      radial-gradient(20% 150px at 0px 0px, rgba(96, 205, 235, 0.54), transparent),
+      radial-gradient(30% 200px at 100px 50px, rgba(225, 160, 160, 0.45), transparent),
+      #f4f4f4 !important;
+  }
 .ion-margin-top {
   margin-top: 0px;
 }

@@ -1,8 +1,15 @@
 <template>
   <ion-page>
     <ion-header>
-      <ion-toolbar>
-        <ion-title class="home-title">Account</ion-title>
+      <ion-toolbar class="background-gradient">
+        <ion-title class="home-title">
+            <div class="title-wrapper">
+              <span class="title-content"> 
+                <ion-icon :icon="personCircle" class="title-icon" />
+                Account
+              </span>
+            </div>
+          </ion-title>
       </ion-toolbar>
     </ion-header>
 
@@ -227,6 +234,28 @@ function changePassword() {
 </script>
 
 <style scoped>
+.title-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 100%; /* 确保高度继承，便于垂直居中 */
+}
+
+.title-icon {
+  font-size: 20px;
+  color: #000;
+}
+.background-gradient {
+    --background: 
+      linear-gradient(to bottom, transparent, #fff 240px),
+      radial-gradient(20% 150px at 70% 230px, rgba(255, 255, 255, 0.5), transparent),
+      radial-gradient(40% 180px at 80% 50px, rgba(249, 236, 224, 0.35), transparent),
+      radial-gradient(50% 300px at 90% 100px, rgba(255, 255, 255, 0.76), transparent),
+      radial-gradient(20% 150px at 0px 0px, rgba(96, 205, 235, 0.54), transparent),
+      radial-gradient(30% 200px at 100px 50px, rgba(225, 160, 160, 0.45), transparent),
+      #f4f4f4 !important;
+  }
 .page-bg {
   --background: #f6f7f9;
 }
