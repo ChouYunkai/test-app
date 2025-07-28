@@ -21,13 +21,18 @@
       
       <!-- 主内容区 -->
       <ion-content >
-      <ion-button expand="block" color="primary" @click="scanQRCode">
+      <ion-button v-if="!isDesktop" expand="block" color="primary" @click="scanQRCode">
         <ion-icon slot="start" :icon="cameraOutline"></ion-icon>
         Scan QR code
       </ion-button>
-
-      <!-- 新增的 NFC 提示区域 -->
-      <div class="nfc-hint-bfc" @click="startNfcScan" role="button" tabindex="0">
+      <!-- 新增的 NFC 提示区域，仅在非桌面端显示 -->
+      <div
+        v-if="!isDesktop"
+        class="nfc-hint-bfc"
+        @click="startNfcScan"
+        role="button"
+        tabindex="0"
+      >
         <ion-icon :icon="radio" class="nfc-icon" />
         <div class="nfc-text">Please move closer to the NFC tag to scan.</div>
       </div>
@@ -252,7 +257,7 @@ import {
   IonInput
 } from '@ionic/vue';
 import { radio, cameraOutline, refresh, logoSoundcloud, search, home } from 'ionicons/icons';
-import {reactive, ref, computed } from 'vue';
+import {reactive, ref, computed, onMounted } from 'vue';
 import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
 // import { Preferences } from '@capacitor/preferences';
@@ -323,6 +328,12 @@ const chipForm = reactive<ChipForm>({
 })
 const initchipForm = reactive<ChipForm>({ ...chipForm })
 const isRefreshing = ref(false)
+const isDesktop = ref(false)
+
+onMounted(() => {
+  const ua = navigator.userAgent
+  isDesktop.value = /Windows|Macintosh|Linux/i.test(ua) && !/Mobile|Android|iPhone|iPad/i.test(ua)
+})
 setInterval(() => {
   dateForm.date = getCurrentTime()
 }, 30000) // 每分钟更新一次
