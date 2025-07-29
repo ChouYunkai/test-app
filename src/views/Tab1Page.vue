@@ -21,10 +21,27 @@
       
       <!-- 主内容区 -->
       <ion-content >
-      <ion-button v-if="!isDesktop" expand="block" color="primary" @click="scanQRCode">
+      <ion-button v-if="!isDesktop" expand="block" color="primary" @click="openScanModal">
         <ion-icon slot="start" :icon="cameraOutline"></ion-icon>
         Scan QR code
       </ion-button>
+      <!-- <ScanQRCode ref="scanRef" @scan-completed="onScanCompleted" /> -->
+       <!-- 弹窗扫码模态框 -->
+       <ion-modal :is-open="isModalOpen" @didDismiss="closeScanModal" class="tab1-modal">
+        <ion-header>
+          <ion-toolbar color="primary">
+            <ion-title>扫码中</ion-title>
+            <ion-buttons slot="end">
+              <ion-button @click="closeScanModal">关闭</ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+
+        <ion-content>
+          <div class="ion-padding">摄像头正在打开，请对准二维码…</div>
+        </ion-content>
+      </ion-modal>
+      
       <!-- 新增的 NFC 提示区域，仅在非桌面端显示 -->
       <div
         v-if="!isDesktop"
@@ -257,12 +274,11 @@ import {
   IonInput
 } from '@ionic/vue';
 import { radio, cameraOutline, refresh, logoSoundcloud, search, home } from 'ionicons/icons';
-import {reactive, ref, computed, onMounted } from 'vue';
+import {reactive, ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
-// import { Preferences } from '@capacitor/preferences';
+import { BarcodeScanner, BarcodeFormat, type BarcodesScannedEvent } from '@capacitor-mlkit/barcode-scanning'
 import { useUserStore } from '@/store/user'  // ⚠️ 导入pinia存储个人全局信息
-import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning'
 import { Capacitor } from '@capacitor/core'
 // import { NFC } from '@capawesome-team/capacitor-nfc'
 import axios from 'axios'
@@ -329,6 +345,8 @@ const chipForm = reactive<ChipForm>({
 const initchipForm = reactive<ChipForm>({ ...chipForm })
 const isRefreshing = ref(false)
 const isDesktop = ref(false)
+const isModalOpen = ref(false)
+const scanResult = ref('')
 
 onMounted(() => {
   const ua = navigator.userAgent
@@ -353,23 +371,36 @@ function handleRefresh() {
   },100)
 }
 
-async function scanQRCode() {
-  try {
-    const result = await BarcodeScanner.scan()
-    if (result.barcodes.length > 0) {
-      const content = result.barcodes[0].rawValue
-      console.log('二维码内容:', content)
-      // const data = JSON.parse(content)
-      // 示例：自动填入 chipForm 信息
-      chipForm.chipCode = content
+// 打开模态框并开始扫码
+const openScanModal = async () => {
+  isModalOpen.value = true
+  console.log('✅ 摄像头已成功启动');
+  const listener = await BarcodeScanner.addListener('barcodesScanned', (event: BarcodesScannedEvent) => {
+    if (event.barcodes?.length) {
+      scanResult.value = event.barcodes[0].rawValue ?? '无法识别二维码'
     } else {
-      alert('未检测到二维码')
+      scanResult.value = '未扫描到二维码'
     }
-  } catch (err) {
-    console.error('扫码失败', err)
-  }
-  showToast('打开摄像头功能暂未实现', 'warning')
+
+    listener.remove()
+    closeScanModal()
+  })
+
+  await BarcodeScanner.startScan({
+    formats: [BarcodeFormat.QrCode]
+  })
 }
+
+const closeScanModal = async () => {
+  await BarcodeScanner.stopScan()
+  isModalOpen.value = false
+}
+
+// 页面卸载时停止摄像头
+onBeforeUnmount(() => {
+  BarcodeScanner.stopScan()
+})
+
 
 const startNfcScan = async () => {
   if (!Capacitor.isNativePlatform()) {
@@ -513,6 +544,7 @@ const uploadToCloud = async () => {
   color: #000;
 }
 .background-gradient {
+    height: 100%;
     --background: 
       linear-gradient(to bottom, transparent, #fff 240px),
       radial-gradient(20% 150px at 70% 230px, rgba(255, 255, 255, 0.5), transparent),
@@ -521,7 +553,16 @@ const uploadToCloud = async () => {
       radial-gradient(20% 150px at 0px 0px, rgba(96, 205, 235, 0.54), transparent),
       radial-gradient(30% 200px at 100px 50px, rgba(225, 160, 160, 0.45), transparent),
       #f4f4f4 !important;
+        /* 设置高度 */
+  min-height: 60px; /* 默认是56px，可改为64或72 */
+  height: 64px;
+  padding-top: 18px;  /* 可选，避免内容挤压 */
   }
+  
+.tab1-modal {
+  background: rgba(0, 0, 0, 0.1)
+}
+
 .ion-margin-top {
   margin-top: 0px;
 }
@@ -570,6 +611,9 @@ const uploadToCloud = async () => {
   height: 100%;
 }
 .home-title{
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center;     /* 垂直居中 */
   font-size: 20px;
   font-weight: bold;
   color: #000000; /* 你想要的颜色 */
