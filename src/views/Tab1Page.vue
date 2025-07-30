@@ -21,27 +21,6 @@
       
       <!-- 主内容区 -->
       <ion-content >
-      <ion-button v-if="!isDesktop" expand="block" color="primary" @click="openScanModal">
-        <ion-icon slot="start" :icon="cameraOutline"></ion-icon>
-        Scan QR code
-      </ion-button>
-      <!-- <ScanQRCode ref="scanRef" @scan-completed="onScanCompleted" /> -->
-       <!-- 弹窗扫码模态框 -->
-       <ion-modal :is-open="isModalOpen" @didDismiss="closeScanModal" class="tab1-modal">
-        <ion-header>
-          <ion-toolbar color="primary">
-            <ion-title>扫码中</ion-title>
-            <ion-buttons slot="end">
-              <ion-button @click="closeScanModal">关闭</ion-button>
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-
-        <ion-content>
-          <div class="ion-padding">摄像头正在打开，请对准二维码…</div>
-        </ion-content>
-      </ion-modal>
-      
       <!-- 新增的 NFC 提示区域，仅在非桌面端显示 -->
       <div
         v-if="!isDesktop"
@@ -273,18 +252,17 @@ import {
   IonCol,
   IonInput
 } from '@ionic/vue';
-import { radio, cameraOutline, refresh, logoSoundcloud, search, home } from 'ionicons/icons';
-import {reactive, ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { radio,  refresh, logoSoundcloud, search, home } from 'ionicons/icons';
+import {reactive, ref, computed, onMounted, watch } from 'vue';
 import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
-import { BarcodeScanner, BarcodeFormat, type BarcodesScannedEvent } from '@capacitor-mlkit/barcode-scanning'
 import { useUserStore } from '@/store/user'  // ⚠️ 导入pinia存储个人全局信息
+import { useScanStore } from '@/store/scan';
 import { Capacitor } from '@capacitor/core'
-// import { NFC } from '@capawesome-team/capacitor-nfc'
 import axios from 'axios'
 
 const userStore = useUserStore()
-
+const scanStore = useScanStore();
 const projectList= ['项目 A', '项目 B', '项目 C']
 const cubeSize = ['150*150', '100*100', '50*50']
 const testDays = ['7 days', '14 days', '28 days']
@@ -345,13 +323,21 @@ const chipForm = reactive<ChipForm>({
 const initchipForm = reactive<ChipForm>({ ...chipForm })
 const isRefreshing = ref(false)
 const isDesktop = ref(false)
-const isModalOpen = ref(false)
-const scanResult = ref('')
 
 onMounted(() => {
   const ua = navigator.userAgent
   isDesktop.value = /Windows|Macintosh|Linux/i.test(ua) && !/Mobile|Android|iPhone|iPad/i.test(ua)
 })
+
+watch(
+  () => scanStore.result,
+  (newVal) => {
+    if (newVal) {
+      chipForm.chipCode = newVal
+    }
+  }
+)
+
 setInterval(() => {
   dateForm.date = getCurrentTime()
 }, 30000) // 每分钟更新一次
@@ -370,36 +356,6 @@ function handleRefresh() {
     isRefreshing.value = false
   },100)
 }
-
-// 打开模态框并开始扫码
-const openScanModal = async () => {
-  isModalOpen.value = true
-  console.log('✅ 摄像头已成功启动');
-  const listener = await BarcodeScanner.addListener('barcodesScanned', (event: BarcodesScannedEvent) => {
-    if (event.barcodes?.length) {
-      scanResult.value = event.barcodes[0].rawValue ?? '无法识别二维码'
-    } else {
-      scanResult.value = '未扫描到二维码'
-    }
-
-    listener.remove()
-    closeScanModal()
-  })
-
-  await BarcodeScanner.startScan({
-    formats: [BarcodeFormat.QrCode]
-  })
-}
-
-const closeScanModal = async () => {
-  await BarcodeScanner.stopScan()
-  isModalOpen.value = false
-}
-
-// 页面卸载时停止摄像头
-onBeforeUnmount(() => {
-  BarcodeScanner.stopScan()
-})
 
 
 const startNfcScan = async () => {
@@ -443,6 +399,8 @@ const startNfcScan = async () => {
   // }
 }
 
+
+
 function getCurrentTime() {
   const now = new Date()
   // 格式化为 YYYY-MM-DD HH:mm
@@ -453,29 +411,6 @@ function getCurrentTime() {
   const m = String(now.getMinutes()).padStart(2, '0')
   return `${Y}-${M}-${D} ${h}:${m}`
 }
-
-// 保存到本地
-// const saveChipForm = async () => {
-//   // 打印字段级别的数据，确认是否绑定成功
-//   console.log("当前结构字段：", chipForm.structure)
-//   console.log("当前项目字段：", chipForm.project)
-//   console.log("整个 chipForm 数据对象：", chipForm)
-
-//   try {
-//     const jsonString = JSON.stringify(chipForm) // reactive 可直接序列化
-//     console.log("最终将被保存的 JSON 字符串：", jsonString)
-
-//     await Preferences.set({
-//       key: 'chip-form-data',
-//       value: jsonString
-//     })
-//     showToast('Successfully saved', 'success')
-//     console.log("✅ chipForm 已成功保存到本地 Preferences")
-//   } catch (err) {
-//     console.error("❌ 保存失败：", err)
-//     showToast('Failly saved', 'danger')
-//   }
-// }
 
 const fetchChipFormByCode = async () => {
   if (!chipForm.chipCode.trim()) {
@@ -526,8 +461,6 @@ const uploadToCloud = async () => {
     showToast('❌ 上传失败，请检查网络或服务器', 'danger')
   }
 }
-
-
 </script>
 
 <style scoped>

@@ -12,7 +12,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@capacitor-mlkit/barcode-scanning": "^7.2.1",
+    "@capacitor-community/barcode-scanner": "^4.0.1",
     "@capacitor/android": "^7.4.2",
     "@capacitor/app": "7.0.1",
     "@capacitor/core": "^7.4.2",
