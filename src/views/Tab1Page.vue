@@ -21,13 +21,14 @@
       
       <!-- 主内容区 -->
       <ion-content >
-      <ion-button expand="block" color="primary" @click="scanQRCode">
-        <ion-icon slot="start" :icon="cameraOutline"></ion-icon>
-        Scan QR code
-      </ion-button>
-
-      <!-- 新增的 NFC 提示区域 -->
-      <div class="nfc-hint-bfc" @click="startNfcScan" role="button" tabindex="0">
+      <!-- 新增的 NFC 提示区域，仅在非桌面端显示 -->
+      <div
+        v-if="!isDesktop"
+        class="nfc-hint-bfc"
+        @click="startNfcScan"
+        role="button"
+        tabindex="0"
+      >
         <ion-icon :icon="radio" class="nfc-icon" />
         <div class="nfc-text">Please move closer to the NFC tag to scan.</div>
       </div>
@@ -251,19 +252,17 @@ import {
   IonCol,
   IonInput
 } from '@ionic/vue';
-import { radio, cameraOutline, refresh, logoSoundcloud, search, home } from 'ionicons/icons';
-import {reactive, ref, computed } from 'vue';
+import { radio,  refresh, logoSoundcloud, search, home } from 'ionicons/icons';
+import {reactive, ref, computed, onMounted, watch } from 'vue';
 import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
-// import { Preferences } from '@capacitor/preferences';
 import { useUserStore } from '@/store/user'  // ⚠️ 导入pinia存储个人全局信息
-import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning'
+import { useScanStore } from '@/store/scan';
 import { Capacitor } from '@capacitor/core'
-// import { NFC } from '@capawesome-team/capacitor-nfc'
 import axios from 'axios'
 
 const userStore = useUserStore()
-
+const scanStore = useScanStore();
 const projectList= ['项目 A', '项目 B', '项目 C']
 const cubeSize = ['150*150', '100*100', '50*50']
 const testDays = ['7 days', '14 days', '28 days']
@@ -323,6 +322,22 @@ const chipForm = reactive<ChipForm>({
 })
 const initchipForm = reactive<ChipForm>({ ...chipForm })
 const isRefreshing = ref(false)
+const isDesktop = ref(false)
+
+onMounted(() => {
+  const ua = navigator.userAgent
+  isDesktop.value = /Windows|Macintosh|Linux/i.test(ua) && !/Mobile|Android|iPhone|iPad/i.test(ua)
+})
+
+watch(
+  () => scanStore.result,
+  (newVal) => {
+    if (newVal) {
+      chipForm.chipCode = newVal
+    }
+  }
+)
+
 setInterval(() => {
   dateForm.date = getCurrentTime()
 }, 30000) // 每分钟更新一次
@@ -342,23 +357,6 @@ function handleRefresh() {
   },100)
 }
 
-async function scanQRCode() {
-  try {
-    const result = await BarcodeScanner.scan()
-    if (result.barcodes.length > 0) {
-      const content = result.barcodes[0].rawValue
-      console.log('二维码内容:', content)
-      // const data = JSON.parse(content)
-      // 示例：自动填入 chipForm 信息
-      chipForm.chipCode = content
-    } else {
-      alert('未检测到二维码')
-    }
-  } catch (err) {
-    console.error('扫码失败', err)
-  }
-  showToast('打开摄像头功能暂未实现', 'warning')
-}
 
 const startNfcScan = async () => {
   if (!Capacitor.isNativePlatform()) {
@@ -401,6 +399,8 @@ const startNfcScan = async () => {
   // }
 }
 
+
+
 function getCurrentTime() {
   const now = new Date()
   // 格式化为 YYYY-MM-DD HH:mm
@@ -411,29 +411,6 @@ function getCurrentTime() {
   const m = String(now.getMinutes()).padStart(2, '0')
   return `${Y}-${M}-${D} ${h}:${m}`
 }
-
-// 保存到本地
-// const saveChipForm = async () => {
-//   // 打印字段级别的数据，确认是否绑定成功
-//   console.log("当前结构字段：", chipForm.structure)
-//   console.log("当前项目字段：", chipForm.project)
-//   console.log("整个 chipForm 数据对象：", chipForm)
-
-//   try {
-//     const jsonString = JSON.stringify(chipForm) // reactive 可直接序列化
-//     console.log("最终将被保存的 JSON 字符串：", jsonString)
-
-//     await Preferences.set({
-//       key: 'chip-form-data',
-//       value: jsonString
-//     })
-//     showToast('Successfully saved', 'success')
-//     console.log("✅ chipForm 已成功保存到本地 Preferences")
-//   } catch (err) {
-//     console.error("❌ 保存失败：", err)
-//     showToast('Failly saved', 'danger')
-//   }
-// }
 
 const fetchChipFormByCode = async () => {
   if (!chipForm.chipCode.trim()) {
@@ -484,8 +461,6 @@ const uploadToCloud = async () => {
     showToast('❌ 上传失败，请检查网络或服务器', 'danger')
   }
 }
-
-
 </script>
 
 <style scoped>
@@ -502,6 +477,7 @@ const uploadToCloud = async () => {
   color: #000;
 }
 .background-gradient {
+    height: 100%;
     --background: 
       linear-gradient(to bottom, transparent, #fff 240px),
       radial-gradient(20% 150px at 70% 230px, rgba(255, 255, 255, 0.5), transparent),
@@ -510,7 +486,16 @@ const uploadToCloud = async () => {
       radial-gradient(20% 150px at 0px 0px, rgba(96, 205, 235, 0.54), transparent),
       radial-gradient(30% 200px at 100px 50px, rgba(225, 160, 160, 0.45), transparent),
       #f4f4f4 !important;
+        /* 设置高度 */
+  min-height: 60px; /* 默认是56px，可改为64或72 */
+  height: 64px;
+  padding-top: 18px;  /* 可选，避免内容挤压 */
   }
+  
+.tab1-modal {
+  background: rgba(0, 0, 0, 0.1)
+}
+
 .ion-margin-top {
   margin-top: 0px;
 }
@@ -559,6 +544,9 @@ const uploadToCloud = async () => {
   height: 100%;
 }
 .home-title{
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center;     /* 垂直居中 */
   font-size: 20px;
   font-weight: bold;
   color: #000000; /* 你想要的颜色 */
