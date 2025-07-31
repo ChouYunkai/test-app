@@ -72,7 +72,7 @@
           </ion-item>
         </ion-list>
       </ion-card>
-
+  
       <ion-card class="action-card">
         <ion-list lines="none">
           <ion-item>
@@ -255,12 +255,18 @@ function changePassword() {
       radial-gradient(20% 150px at 0px 0px, rgba(96, 205, 235, 0.54), transparent),
       radial-gradient(30% 200px at 100px 50px, rgba(225, 160, 160, 0.45), transparent),
       #f4f4f4 !important;
+    min-height: 60px; /* 默认是56px，可改为64或72 */
+    height: 64px;
+    padding-top: 18px;  /* 可选，避免内容挤压 */
   }
 .page-bg {
   --background: #f6f7f9;
 }
 
 .home-title {
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center;     /* 垂直居中 */
   font-size: 20px;
   font-weight: bold;
   text-align: center;
