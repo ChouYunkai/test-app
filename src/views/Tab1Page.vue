@@ -262,7 +262,7 @@ import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
 // import { Preferences } from '@capacitor/preferences';
 import { useUserStore } from '@/store/user'  // ⚠️ 导入pinia存储个人全局信息
-import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning'
+// import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning'
 import { Capacitor } from '@capacitor/core'
 // import { NFC } from '@capawesome-team/capacitor-nfc'
 import axios from 'axios'
