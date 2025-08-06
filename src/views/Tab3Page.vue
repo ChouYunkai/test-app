@@ -8,16 +8,14 @@
           </div>
         </ion-title>
       </ion-toolbar>
-      <ion-searchbar
+    </ion-header>
+    <ion-searchbar
         v-model="searchQuery"
         placeholder="搜索项目、承包商等"
-        debounce="300"
         @ionInput="onSearch"
         animated
         showClearButton="focus"
       />
-    </ion-header>
-
     <ion-content>
   <!-- 表格头 -->
   <ion-grid class="table-header">

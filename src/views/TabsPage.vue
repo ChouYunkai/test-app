@@ -36,5 +36,5 @@ import {
   IonRouterOutlet
 } from '@ionic/vue';
 
-import { barChart, home, person, square } from 'ionicons/icons';
+import { barChart, home, person } from 'ionicons/icons';
 </script>
