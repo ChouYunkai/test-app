@@ -2,11 +2,17 @@
   <ion-page>
       <ion-header>
         <ion-toolbar class="background-gradient">
+            <!-- 左侧按钮 -->
+          <ion-buttons slot="start">
+            <ion-button @click="openLangSheet">
+              <ion-icon slot="icon-only" :icon="globe" />
+            </ion-button>
+          </ion-buttons>
           <ion-title class="home-title">
             <div class="title-wrapper">
               <span class="title-content"> 
                 <ion-icon :icon="home" class="title-icon" />
-                Index
+                {{ t('index') }}
               </span>
             </div>
           </ion-title>
@@ -188,7 +194,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">试块编号</ion-col>
+      <ion-col size="6" class="cell">Chip Code</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -202,12 +208,12 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">浇筑日期</ion-col>
+      <ion-col size="6" class="cell">Casting Date</ion-col>
       <ion-col size="6" class="cell">{{ dateForm.date }}</ion-col>
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">实验天数</ion-col>
+      <ion-col size="6" class="cell">Test Days</ion-col>
       <ion-col size="6" class="cell">
         <ProjectSelect
           v-model="chipForm.testDays"
@@ -250,9 +256,10 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonInput
+  IonInput,
+  actionSheetController
 } from '@ionic/vue';
-import { radio,  refresh, logoSoundcloud, search, home } from 'ionicons/icons';
+import { radio,  refresh, logoSoundcloud, search, home, globe } from 'ionicons/icons';
 import {reactive, ref, computed, onMounted, watch } from 'vue';
 import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
@@ -260,7 +267,7 @@ import { useUserStore } from '@/store/user'  // ⚠️ 导入pinia存储个人�
 import { useScanStore } from '@/store/scan';
 import { Capacitor } from '@capacitor/core'
 import axios from 'axios'
-
+import { useI18n } from 'vue-i18n'
 const userStore = useUserStore()
 const scanStore = useScanStore();
 const projectList= ['项目 A', '项目 B', '项目 C']
@@ -346,7 +353,28 @@ const dateForm = reactive({
   date: getCurrentTime(),
 })
 
+const { locale, t } = useI18n()
 
+async function openLangSheet() {
+  const actionSheet = await actionSheetController.create({
+    header: '选择语言 | Select Language',
+    buttons: [
+      {
+        text: 'English',
+        handler: () => { locale.value = 'en' }
+      },
+      {
+        text: '中文',
+        handler: () => { locale.value = 'zh' }
+      },
+      {
+        text: '取消',
+        role: 'cancel'
+      }
+    ]
+  })
+  await actionSheet.present()
+}
 function handleRefresh() {
   isRefreshing.value = true
 

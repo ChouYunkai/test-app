@@ -1,0 +1,30 @@
+{
+    "index": "Index",
+    "nfcHint": "Please move closer to the NFC tag to scan.",
+    "fieldLabel": "Field Label",
+    "value": "Value",
+    "companyName": "Company Name",
+    "project": "Project",
+    "structure": "Structure",
+    "contractor": "Contractor",
+    "supplier": "Supplier",
+    "preparedBy": "Prepared By",
+    "cubeSize": "Cube Size",
+    "grade": "Grade",
+    "cement": "Type of Cement",
+    "fineAggregate": "Fine Aggregate",
+    "coarseAggregate": "Coarse Aggregate",
+    "admixture": "Admixture",
+    "chipCode": "Chip Code",
+    "castingDate": "Casting Date",
+    "testDays": "Test Days",
+    "search": "Search",
+    "upload": "Upload",
+    
+    "tabs": {
+        "home": "Home",
+        "scanQRCode": "Scan QR Code",
+        "account": "Account"
+      }
+  }
+  

@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
 import { IonicVue } from '@ionic/vue'
-
+import i18n from './i18n'
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css'
 
@@ -28,6 +28,7 @@ import '@ionic/vue/css/palettes/dark.system.css'
 /* Theme variables */
 import './theme/variables.css'
 
+
 document.body.setAttribute('color-theme', 'light')
 
 // 创建 Pinia 实例
@@ -38,6 +39,7 @@ const app = createApp(App)
   .use(createPinia())// 注册 Pinia 插件
   .use(router)
   .use(pinia)
+  .use(i18n)
    // ✅ 注册 Pinia  
 
 router.isReady().then(() => {
