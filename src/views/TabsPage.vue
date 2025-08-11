@@ -5,7 +5,7 @@
       <ion-tab-bar slot="bottom">
         <ion-tab-button tab="tab1" href="/tabs/tab1">
           <ion-icon :icon="home" size="large"></ion-icon>
-          <ion-label>Home</ion-label>
+          <ion-label>{{ t('tabs.home') }}</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="tab3" href="/tabs/tab3">
@@ -26,4 +26,7 @@
 <script setup lang="ts">
 import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage, IonRouterOutlet } from '@ionic/vue';
 import { home, person, qrCode} from 'ionicons/icons';
+import { useI18n } from 'vue-i18n'
+// 从 useI18n 拿到 t 函数，模板里可以用
+const { t } = useI18n()
 </script>

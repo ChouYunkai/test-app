@@ -1,0 +1,30 @@
+{
+    "index": "首页",
+    "nfcHint": "请将设备靠近 NFC 标签以扫描",
+    "fieldLabel": "字段名称",
+    "value": "值",
+    "companyName": "公司名称",
+    "project": "项目",
+    "structure": "结构",
+    "contractor": "承包商",
+    "supplier": "供应商",
+    "preparedBy": "制备人",
+    "cubeSize": "试块尺寸",
+    "grade": "等级",
+    "cement": "水泥类型",
+    "fineAggregate": "细骨料",
+    "coarseAggregate": "粗骨料",
+    "admixture": "外加剂",
+    "chipCode": "试块编号",
+    "castingDate": "浇筑日期",
+    "testDays": "实验天数",
+    "search": "查询",
+    "upload": "上传",
+    
+    "tabs": {
+        "home": "首页",
+        "scanQRCode": "扫描二维码",
+        "account": "账户"
+      }
+  }
+  
