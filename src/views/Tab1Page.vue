@@ -53,7 +53,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Project</ion-col>
+      <ion-col size="6" class="cell">{{ t('project') }}</ion-col>
       <ion-col size="6" class="cell">
         <ProjectSelect
           v-model="chipForm.project"
@@ -65,7 +65,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Structure</ion-col>
+      <ion-col size="6" class="cell">{{ t('structure') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
           <ion-input
@@ -79,7 +79,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Contractor</ion-col>
+      <ion-col size="6" class="cell">{{ t('contractor') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -93,7 +93,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Supplier</ion-col>
+      <ion-col size="6" class="cell">{{ t('supplier') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -107,7 +107,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Prepared By</ion-col>
+      <ion-col size="6" class="cell">{{ t('preparedBy') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
           <ion-input
@@ -121,7 +121,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Cube Size</ion-col>
+      <ion-col size="6" class="cell">{{ t('cubeSize') }}</ion-col>
       <ion-col size="6" class="cell">
         <ProjectSelect
           v-model="chipForm.cubeSize"
@@ -133,7 +133,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Grade</ion-col>
+      <ion-col size="6" class="cell">{{ t('grade') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -147,7 +147,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Type of Cement</ion-col>
+      <ion-col size="6" class="cell">{{ t('cement') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -161,7 +161,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Fine Aggregate</ion-col>
+      <ion-col size="6" class="cell">{{ t('fineAggregate') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -175,7 +175,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Coarse Aggregate</ion-col>
+      <ion-col size="6" class="cell">{{ t('coarseAggregate') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -189,12 +189,12 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Admixture</ion-col>
+      <ion-col size="6" class="cell">{{ t('admixture') }}</ion-col>
       <ion-col size="6" class="cell">{{ chipForm.admixture }}</ion-col>
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Chip Code</ion-col>
+      <ion-col size="6" class="cell">{{ t('chipCode') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -208,12 +208,13 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Casting Date</ion-col>
+      <ion-col size="6" class="cell">{{ t('castingDate') }}</ion-col>
       <ion-col size="6" class="cell">{{ dateForm.date }}</ion-col>
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Test Days</ion-col>
+      <ion-col size="6" class="cell">{{ t('testDays') }}
+      </ion-col>
       <ion-col size="6" class="cell">
         <ProjectSelect
           v-model="chipForm.testDays"
