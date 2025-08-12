@@ -48,7 +48,7 @@
 
     <!-- 数据行 -->
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Company Name</ion-col>
+      <ion-col size="6" class="cell">{{ t('companyName') }}</ion-col>
       <ion-col size="6" class="cell">{{ chipForm.company }}</ion-col>
     </ion-row>
 
