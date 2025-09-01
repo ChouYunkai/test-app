@@ -20,7 +20,7 @@
     "testDays": "Test Days",
     "search": "Search",
     "upload": "Upload",
-    
+    "selectTestDays": "Select Test Days",
     "tabs": {
         "home": "Home",
         "scanQRCode": "Scan QR Code",

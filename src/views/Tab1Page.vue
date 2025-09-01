@@ -36,7 +36,7 @@
         tabindex="0"
       >
         <ion-icon :icon="radio" class="nfc-icon" />
-        <div class="nfc-text">Please move closer to the NFC tag to scan.</div>
+        <div class="nfc-text">{{ t('nfcHint') }}</div>
       </div>
       <div class="table-bfc">
         <ion-grid class="styled-grid ion-padding">
@@ -219,7 +219,7 @@
         <ProjectSelect
           v-model="chipForm.testDays"
           :options="testDaysOptions"
-          placeholder="Select testdays"
+          :placeholder="t('selectTestDays')"
           :disabled="!isAdmin"
         />
       </ion-col>
@@ -230,13 +230,13 @@
         <ion-col size="6">
           <ion-button expand="block" color="secondary" v-if="userStore.role === 'Administrator'" @click="fetchChipFormByCode" >
             <ion-icon slot="start" :icon="search" class="icon-table"></ion-icon>
-            Search
+            {{ t('search') }}
           </ion-button>
         </ion-col>
         <ion-col size="6">
           <ion-button expand="block" color="tertiary" v-if="userStore.role === 'Administrator'" @click="uploadToCloud">
             <ion-icon slot="start" :icon="logoSoundcloud" class="icon-table"></ion-icon>
-            Upload
+            {{ t('upload') }}
           </ion-button>
         </ion-col>
       </ion-row>

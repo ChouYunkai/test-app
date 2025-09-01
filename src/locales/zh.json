@@ -20,11 +20,12 @@
     "testDays": "实验天数",
     "search": "查询",
     "upload": "上传",
+    "selectTestDays": "请选择实验天数",
     
     "tabs": {
         "home": "首页",
         "scanQRCode": "扫描二维码",
         "account": "账户"
       }
-  }
+}
   
