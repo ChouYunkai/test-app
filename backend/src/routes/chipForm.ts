@@ -15,6 +15,92 @@ router.get('/', async (req, res) => {
   }
 });
 
+// 条件查询芯片表单
+router.post('/search', async (req, res) => {
+  try {
+    const { projectName, supplier } = req.body;
+
+    let sql = 'SELECT * FROM chip_form WHERE 1=1';
+    const params = [];
+
+    if (projectName) {
+      sql += ' AND REPLACE(project, " ", "") LIKE ?';
+      params.push(`%${projectName}%`);
+    }
+
+    if (supplier) {
+      sql += ' AND supplier LIKE ?';
+      params.push(`%${supplier}%`);
+    }
+
+    const [rows] = await pool.query(sql, params);
+    res.json(rows);
+  } catch (error) {
+    console.error("❌ 数据库查询失败:", error);
+    res.status(500).json({ message: '数据库查询失败' });
+  }
+});
+// 新增
+router.post('/add', async (req, res) => {
+  try {
+    const data = req.body;
+    const sql = `INSERT INTO chip_form 
+      (id, project, structure, contractor, supervisor, supplier, contact, size, strength,
+       cementBrand, sandType, gravelType, admixture, batchNo, curingPeriod, timestamp) 
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+    const params = [
+      data.id, data.project, data.structure, data.contractor, data.supervisor,
+      data.supplier, data.contact, data.size, data.strength,
+      data.cementBrand, data.sandType, data.gravelType, data.admixture,
+      data.batchNo, data.curingPeriod, data.timestamp
+    ];
+
+    await pool.query(sql, params);
+    res.json({ message: '新增成功' });
+  } catch (err) {
+    console.error("❌ 新增失败:", err);
+    res.status(500).json({ message: '新增失败' });
+  }
+});
+
+// 修改
+router.post('/update', async (req, res) => {
+  try {
+    const data = req.body;
+    const sql = `UPDATE chip_form SET 
+      project=?, structure=?, contractor=?, supervisor=?, supplier=?, contact=?, size=?, strength=?,
+      cementBrand=?, sandType=?, gravelType=?, admixture=?, batchNo=?, curingPeriod=?, timestamp=?
+      WHERE id=?`;
+
+    const params = [
+      data.project, data.structure, data.contractor, data.supervisor, data.supplier,
+      data.contact, data.size, data.strength, data.cementBrand, data.sandType,
+      data.gravelType, data.admixture, data.batchNo, data.curingPeriod, data.timestamp,
+      data.id
+    ];
+
+    await pool.query(sql, params);
+    res.json({ message: '修改成功' });
+  } catch (err) {
+    console.error("❌ 修改失败:", err);
+    res.status(500).json({ message: '修改失败' });
+  }
+});
+// 删除记录
+router.delete('/delete/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+    const sql = 'DELETE FROM chip_form WHERE id = ?'
+    await pool.query(sql, [id])
+    res.json({ message: '删除成功' })
+  } catch (err) {
+    console.error('❌ 删除失败:', err)
+    res.status(500).json({ message: '删除失败' })
+  }
+});
+
+
 // 插入新的芯片表单数据
 router.post('/', async (req, res) => {
   const {
