@@ -20,6 +20,18 @@
     "testDays": "实验天数",
     "search": "查询",
     "upload": "上传",
+    "Role":"用户",
+    "Permission Level":"权限等级",
+    "Organization":"组织",
+    "Manage Permissions":"管理权限",
+    "Change Password":"修改密码",
+    "Login":"登录",
+    "Logout":"退出",
+    "Developer":"开发者",
+    "Select project":"选择项目",
+    "Add Structure":"增加结构",
+
+
     
     "tabs": {
         "home": "首页",

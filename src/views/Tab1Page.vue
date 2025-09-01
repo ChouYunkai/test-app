@@ -58,7 +58,7 @@
         <ProjectSelect
           v-model="chipForm.project"
           :options="projectOptions"
-          placeholder="Select project"
+          :placeholder="t('Select project')"
           :disabled="!isAdmin"
         />
       </ion-col>
@@ -70,7 +70,7 @@
         <ion-item lines="none" class="input-item">
           <ion-input
             v-model="chipForm.structure"
-            placeholder="Add Structure"
+            :placeholder="t('Add Structure')"
             clear-input
            :disabled="!isAdmin"
           ></ion-input>
@@ -230,13 +230,13 @@
         <ion-col size="6">
           <ion-button expand="block" color="secondary" v-if="userStore.role === 'Administrator'" @click="fetchChipFormByCode" >
             <ion-icon slot="start" :icon="search" class="icon-table"></ion-icon>
-            Search
+            {{ t('search') }}
           </ion-button>
         </ion-col>
         <ion-col size="6">
           <ion-button expand="block" color="tertiary" v-if="userStore.role === 'Administrator'" @click="uploadToCloud">
             <ion-icon slot="start" :icon="logoSoundcloud" class="icon-table"></ion-icon>
-            Upload
+            {{ t('upload') }}
           </ion-button>
         </ion-col>
       </ion-row>
