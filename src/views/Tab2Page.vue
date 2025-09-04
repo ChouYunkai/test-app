@@ -96,7 +96,7 @@
 
         <ion-content class="ion-padding">
           <ion-item>
-          <ion-input v-model="loginForm.username" placeholder="Username" autocomplete="username" />
+          <ion-input v-model="loginForm.username" placeholder="Email" autocomplete="username" />
           </ion-item>
           <ion-item>
           <ion-input v-model="loginForm.password" type="password" placeholder="Password" autocomplete="current-password" />
@@ -165,46 +165,63 @@ function openLoginModal() {
 
 async function submitLogin() {
   if (!loginForm.username || !loginForm.password) {
-    showToast('请输入用户名和密码', 'warning')
-    return
+    showToast('请输入用户名和密码', 'warning');
+    return;
   }
 
-  loading.value = true
+  loading.value = true;
+
   try {
-    const response = await fetch('http://localhost:3001/api/chipform/login', {
+    // 通过同源相对路径走 Vite 代理，避免 Mixed Content
+    const response = await fetch(`/api/chipform/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email: loginForm.username,  // 如果后端用email做用户名
-        password: loginForm.password
-      })
-    })
+        email: loginForm.username,
+        password: loginForm.password,
+      }),
+    });
 
-    if (!response.ok) {
-      const err = await response.json()
-      showToast('登录失败: ' + err.message, 'danger')
-      loading.value = false
-      return
+    // 捕获非 JSON 或 HTTP 错误
+    const contentType = response.headers.get('content-type') || '';
+    let data: any = null;
+    if (contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const errText = await response.text();
+      showToast(`登录失败: ${errText || '服务器未返回 JSON'}`, 'danger');
+      return;
     }
 
-    const data = await response.json()
+    if (!response.ok) {
+      const msg = data?.message || '账号或密码错误';
+      showToast(`登录失败: ${msg}`, 'danger');
+      return;
+    }
 
+    if (!data || !data.email) {
+      showToast('登录失败: 返回数据异常', 'danger');
+      return;
+    }
+
+    // 登录成功，更新 store
     userStore.login({
       name: data.name,
       email: data.email,
       role: data.role,
       permissionLevel: data.permission_level,
-      organization: data.organization
-    })
-    showToast(`欢迎回来，${userStore.name}`, 'success')
-    // 关闭模态框
-    closeLoginModal()
+      organization: data.organization,
+    });
 
-  } catch (error) {
-    showToast('请求异常，请稍后重试', 'danger')
-    console.error(error)
+    showToast(`欢迎回来，${userStore.name}`, 'success');
+    closeLoginModal(); // 关闭登录模态框
+
+  } catch (error: any) {
+    // 网络层错误
+    showToast(`请求异常，请检查网络或后端服务: ${error.message}`, 'danger');
+    console.error('Login fetch error:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 

@@ -8,10 +8,9 @@ const PORT = 3001;
 
 app.use(cors());
 app.use(express.json());
-
-// 挂载表单接口
 app.use('/api/chipform', chipFormRouter);
 
-app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+// 监听所有网卡
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running at http://0.0.0.0:${PORT}`);
 });
