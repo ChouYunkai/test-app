@@ -169,35 +169,39 @@ router.get('/:chipCode', async (req, res) => {
     }
   });
   
-// 登录接口
+// 登录接口（支持邮箱或用户名）
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body
+  const { email, password } = req.body; // 前端传入字段名为 email，这里允许是邮箱或用户名
 
   if (!email || !password) {
-    return res.status(400).json({ message: '邮箱和密码不能为空' })
+    return res.status(400).json({ message: '邮箱/用户名 和 密码不能为空' });
   }
+
+  const identifier = String(email).trim();
+  const masked = identifier.length > 2 ? identifier[0] + '**' + identifier.slice(-1) : '**';
+  console.log(`[LOGIN] incoming identifier=%s`, masked);
 
   try {
     const [rows] = await pool.query(
-      `SELECT name, email, role, permission_level, organization 
-       FROM users 
-       WHERE email = ? AND password = ?`,
-      [email, password]
-    )
+      `SELECT name, email, role, permission_level, organization
+       FROM users
+       WHERE (email = ? OR name = ?) AND password = ?`,
+      [identifier, identifier, password]
+    );
 
-    const result = rows as any[]
+    const result = rows as any[];
+    console.log(`[LOGIN] match_count=%d`, result.length);
 
     if (result.length === 0) {
-      return res.status(401).json({ message: '账号或密码错误' })
+      return res.status(401).json({ message: '账号或密码错误' });
     }
 
-    const user = result[0]
-
-    return res.status(200).json(user)
+    const user = result[0];
+    return res.status(200).json(user);
   } catch (error) {
-    console.error('数据库出错:', error)
-    return res.status(500).json({ message: '服务器内部错误' })
+    console.error('[LOGIN] 数据库出错:', error);
+    return res.status(500).json({ message: '服务器内部错误' });
   }
-})
+});
 
 export default router;
