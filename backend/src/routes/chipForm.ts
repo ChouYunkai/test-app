@@ -178,6 +178,26 @@ router.post('/login', async (req, res) => {
   }
 
   try {
+    // 创建users表（如果不存在）
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        password VARCHAR(100) NOT NULL,
+        role VARCHAR(50) DEFAULT 'user',
+        permission_level VARCHAR(50) DEFAULT 'normal',
+        organization VARCHAR(100) DEFAULT 'Default Organization',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+
+    // 插入测试用户（如果不存在）
+    await pool.query(`
+      INSERT IGNORE INTO users (name, email, password, role, permission_level, organization) 
+      VALUES ('测试用户', 'test@example.com', '123456', 'admin', 'high', '测试公司')
+    `)
+
     const [rows] = await pool.query(
       `SELECT name, email, role, permission_level, organization 
        FROM users 
