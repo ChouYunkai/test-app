@@ -2,11 +2,17 @@
   <ion-page>
       <ion-header>
         <ion-toolbar class="background-gradient">
+            <!-- 左侧按钮 -->
+          <ion-buttons slot="start">
+            <ion-button @click="openLangSheet">
+              <ion-icon slot="icon-only" :icon="globe" />
+            </ion-button>
+          </ion-buttons>
           <ion-title class="home-title">
             <div class="title-wrapper">
               <span class="title-content"> 
                 <ion-icon :icon="home" class="title-icon" />
-                Index
+                {{ t('index') }}
               </span>
             </div>
           </ion-title>
@@ -30,7 +36,7 @@
         tabindex="0"
       >
         <ion-icon :icon="radio" class="nfc-icon" />
-        <div class="nfc-text">Please move closer to the NFC tag to scan.</div>
+        <div class="nfc-text">{{ t('nfcHint') }}</div>
       </div>
       <div class="table-bfc">
         <ion-grid class="styled-grid ion-padding">
@@ -42,12 +48,12 @@
 
     <!-- 数据行 -->
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Company Name</ion-col>
+      <ion-col size="6" class="cell">{{ t('companyName') }}</ion-col>
       <ion-col size="6" class="cell">{{ chipForm.company }}</ion-col>
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Project</ion-col>
+      <ion-col size="6" class="cell">{{ t('project') }}</ion-col>
       <ion-col size="6" class="cell">
         <ProjectSelect
           v-model="chipForm.project"
@@ -59,7 +65,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Structure</ion-col>
+      <ion-col size="6" class="cell">{{ t('structure') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
           <ion-input
@@ -73,7 +79,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Contractor</ion-col>
+      <ion-col size="6" class="cell">{{ t('contractor') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -87,7 +93,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Supplier</ion-col>
+      <ion-col size="6" class="cell">{{ t('supplier') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -101,7 +107,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Prepared By</ion-col>
+      <ion-col size="6" class="cell">{{ t('preparedBy') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
           <ion-input
@@ -115,7 +121,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Cube Size</ion-col>
+      <ion-col size="6" class="cell">{{ t('cubeSize') }}</ion-col>
       <ion-col size="6" class="cell">
         <ProjectSelect
           v-model="chipForm.cubeSize"
@@ -127,7 +133,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Grade</ion-col>
+      <ion-col size="6" class="cell">{{ t('grade') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -141,7 +147,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Type of Cement</ion-col>
+      <ion-col size="6" class="cell">{{ t('cement') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -155,7 +161,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Fine Aggregate</ion-col>
+      <ion-col size="6" class="cell">{{ t('fineAggregate') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -169,7 +175,7 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Coarse Aggregate</ion-col>
+      <ion-col size="6" class="cell">{{ t('coarseAggregate') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -183,12 +189,12 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">Admixture</ion-col>
+      <ion-col size="6" class="cell">{{ t('admixture') }}</ion-col>
       <ion-col size="6" class="cell">{{ chipForm.admixture }}</ion-col>
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">试块编号</ion-col>
+      <ion-col size="6" class="cell">{{ t('chipCode') }}</ion-col>
       <ion-col size="6" class="cell">
         <ion-item lines="none" class="input-item">
         <ion-input
@@ -202,17 +208,18 @@
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">浇筑日期</ion-col>
+      <ion-col size="6" class="cell">{{ t('castingDate') }}</ion-col>
       <ion-col size="6" class="cell">{{ dateForm.date }}</ion-col>
     </ion-row>
 
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">实验天数</ion-col>
+      <ion-col size="6" class="cell">{{ t('testDays') }}
+      </ion-col>
       <ion-col size="6" class="cell">
         <ProjectSelect
           v-model="chipForm.testDays"
           :options="testDaysOptions"
-          placeholder="Select testdays"
+          :placeholder="t('selectTestDays')"
           :disabled="!isAdmin"
         />
       </ion-col>
@@ -223,13 +230,13 @@
         <ion-col size="6">
           <ion-button expand="block" color="secondary" v-if="userStore.role === 'Administrator'" @click="fetchChipFormByCode" >
             <ion-icon slot="start" :icon="search" class="icon-table"></ion-icon>
-            Search
+            {{ t('search') }}
           </ion-button>
         </ion-col>
         <ion-col size="6">
           <ion-button expand="block" color="tertiary" v-if="userStore.role === 'Administrator'" @click="uploadToCloud">
             <ion-icon slot="start" :icon="logoSoundcloud" class="icon-table"></ion-icon>
-            Upload
+            {{ t('upload') }}
           </ion-button>
         </ion-col>
       </ion-row>
@@ -250,9 +257,10 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonInput
+  IonInput,
+  actionSheetController
 } from '@ionic/vue';
-import { radio,  refresh, logoSoundcloud, search, home } from 'ionicons/icons';
+import { radio,  refresh, logoSoundcloud, search, home, globe } from 'ionicons/icons';
 import {reactive, ref, computed, onMounted, watch } from 'vue';
 import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
@@ -260,7 +268,7 @@ import { useUserStore } from '@/store/user'  // ⚠️ 导入pinia存储个人�
 import { useScanStore } from '@/store/scan';
 import { Capacitor } from '@capacitor/core'
 import axios from 'axios'
-
+import { useI18n } from 'vue-i18n'
 const userStore = useUserStore()
 const scanStore = useScanStore();
 const projectList= ['项目 A', '项目 B', '项目 C']
@@ -346,7 +354,28 @@ const dateForm = reactive({
   date: getCurrentTime(),
 })
 
+const { locale, t } = useI18n()
 
+async function openLangSheet() {
+  const actionSheet = await actionSheetController.create({
+    header: '选择语言 | Select Language',
+    buttons: [
+      {
+        text: 'English',
+        handler: () => { locale.value = 'en' }
+      },
+      {
+        text: '中文',
+        handler: () => { locale.value = 'zh' }
+      },
+      {
+        text: '取消',
+        role: 'cancel'
+      }
+    ]
+  })
+  await actionSheet.present()
+}
 function handleRefresh() {
   isRefreshing.value = true
 

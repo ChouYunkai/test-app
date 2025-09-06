@@ -37,7 +37,8 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning'
+// import { BarcodeScanner } from '@capacitor-mlkit/barcode-scanning'
+import { BarcodeScanner } from '@capacitor-community/barcode-scanner'
 import { useToast } from '@/components/useToast'
 
 const scanning = ref(false)
@@ -47,8 +48,8 @@ const emit = defineEmits(['scan-completed'])
 
 const startScan = async () => {
   try {
-    const permission = await BarcodeScanner.requestPermissions()
-    if (permission.camera !== 'granted') {
+    const status = await BarcodeScanner.checkPermission({ force: true })
+    if (!status.granted) {
       showToast('请授权摄像头权限', 'warning')
       return
     }
@@ -56,24 +57,19 @@ const startScan = async () => {
     scanning.value = true
     result.value = ''
 
-    const handler = await BarcodeScanner.addListener('barcodesScanned', (scanResult: any) => {
-      if (scanResult.barcodes?.length > 0) {
-        const raw = scanResult.barcodes[0].rawValue
-        try {
-          const data = JSON.parse(raw)
-          result.value = data.chipCode || raw
-        } catch {
-          result.value = raw
-        }
-        emit('scan-completed', result.value)
-      } else {
-        showToast('未识别到二维码', 'danger')
+    const scanResult = await BarcodeScanner.startScan()
+    if (scanResult.hasContent && scanResult.content) {
+      try {
+        const data = JSON.parse(scanResult.content)
+        result.value = data.chipCode || scanResult.content
+      } catch {
+        result.value = scanResult.content
       }
-      stopScan()
-      handler.remove()
-    })
-
-    await BarcodeScanner.startScan()
+      emit('scan-completed', result.value)
+    } else {
+      showToast('未识别到二维码', 'danger')
+    }
+    stopScan()
   } catch (e) {
     console.error('扫码异常', e)
     showToast('扫码失败', 'danger')
