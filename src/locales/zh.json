@@ -20,12 +20,35 @@
     "testDays": "实验天数",
     "search": "查询",
     "upload": "上传",
-    "selectTestDays": "请选择实验天数",
+    "Role":"用户",
+    "Permission Level":"权限等级",
+    "Organization":"组织",
+    "Manage Permissions":"管理权限",
+    "Change Password":"修改密码",
+    "Login":"登录",
+    "Logout":"退出",
+    "Developer":"开发者",
+    "Select project":"选择项目",
+    "Add Structure":"添加结构",
+    "Add Contractor":"添加承包商",
+    "Add Suppier":"添加供应商",
+    "Add Info.":"添加制备人信息",
+    "Select Cube Size":"选择试块尺寸",
+    "Add Grade":"添加等级",
+    "Add cement info":"添加水泥信息",
+    "Add fineAggregate":"添加细骨料",
+    "Add coarseAggregate":"添加粗骨料",
+    "Add chipcode":"添加试块编号",
+    "selectTestDays":"选择实验天数",
+
+
+
+
     
     "tabs": {
         "home": "首页",
         "scanQRCode": "扫描二维码",
         "account": "账户"
       }
-}
+  }
   
