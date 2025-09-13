@@ -171,7 +171,7 @@ async function submitLogin() {
 
   loading.value = true
   try {
-    const response = await fetch('http://localhost:3001/api/chipform/login', {
+    const response = await fetch('http://172.20.10.3:3001/api/chipform/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -199,7 +199,7 @@ async function submitLogin() {
     showToast(`欢迎回来，${userStore.name}`, 'success')
     // 关闭模态框
     closeLoginModal()
-
+    console.log('是否可以请求后端，http问题解决')
   } catch (error) {
     showToast('请求异常，请稍后重试', 'danger')
     console.error(error)
