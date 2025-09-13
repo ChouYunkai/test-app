@@ -58,7 +58,7 @@
         <ProjectSelect
           v-model="chipForm.project"
           :options="projectOptions"
-          placeholder="Select project"
+          :placeholder="t('Select project')"
           :disabled="!isAdmin"
         />
       </ion-col>
@@ -70,7 +70,7 @@
         <ion-item lines="none" class="input-item">
           <ion-input
             v-model="chipForm.structure"
-            placeholder="Add Structure"
+            :placeholder="t('Add Structure')"
             clear-input
            :disabled="!isAdmin"
           ></ion-input>
@@ -84,7 +84,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.contractor"
-            placeholder="Add Contractor"
+            :placeholder="t('Add Contractor')"
             clear-input
            :disabled="!isAdmin"
           ></ion-input>
@@ -98,7 +98,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.supplier"
-            placeholder="Add Suppier "
+            :placeholder="t('Add Suppier')"
             clear-input
            :disabled="!isAdmin"
           ></ion-input>
@@ -112,7 +112,7 @@
         <ion-item lines="none" class="input-item">
           <ion-input
             v-model="chipForm.preparedBy"
-            placeholder="Add Info."
+            :placeholder="t('Add Info.')"
             clear-input
            :disabled="!isAdmin"
           ></ion-input>
@@ -126,7 +126,7 @@
         <ProjectSelect
           v-model="chipForm.cubeSize"
           :options="cubeOptions"
-          placeholder="Select Cube Size"
+          :placeholder="t('Select Cube Size')"
           :disabled="!isAdmin"
         />
       </ion-col>
@@ -138,7 +138,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.grade"
-            placeholder="Add Grade"
+            :placeholder="t('Add Grade')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -152,7 +152,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.cement"
-            placeholder="Add cement info"
+            :placeholder="t('Add cement info')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -166,7 +166,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.fineAggregate"
-            placeholder="Add fineAggregate"
+            :placeholder="t('Add fineAggregate')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -180,7 +180,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.coarseAggregate"
-            placeholder="Add coarseAggregate"
+            :placeholder="t('Add coarseAggregate')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -190,7 +190,14 @@
 
     <ion-row class="styled-row">
       <ion-col size="6" class="cell">{{ t('admixture') }}</ion-col>
-      <ion-col size="6" class="cell">{{ chipForm.admixture }}</ion-col>
+      <ion-col size="6" class="cell">
+        <ion-input
+            v-model="chipForm.admixture"
+            :placeholder="t('admixture')"
+            clear-input
+            :disabled="!isAdmin"
+          ></ion-input>
+        </ion-col>
     </ion-row>
 
     <ion-row class="styled-row">
@@ -199,7 +206,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.chipCode"
-            placeholder="Add chipcode"
+            :placeholder="t('Add chipcode')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -448,7 +455,7 @@ const fetchChipFormByCode = async () => {
   }
 
   try {
-    const res = await axios.get<ChipForm>(`http://172.20.10.3:3001/api/chipform/${chipForm.chipCode}`)
+    const res = await axios.get<ChipForm>(`http://localhost:3001/api/chipform/${chipForm.chipCode}`)
     Object.assign(chipForm, res.data)
     showToast('✅ 查询成功，数据已加载', 'success')
     console.log("查询结果：", res.data)
@@ -476,7 +483,7 @@ const uploadToCloud = async () => {
     const jsonString = JSON.stringify(chipForm) // 你已有
     console.log("🌐 准备上传到云端：", jsonString)
 
-    const res = await axios.post<UploadResponse>('http://172.20.10.3:3001/api/chipform',chipForm)
+    const res = await axios.post<UploadResponse>('http://localhost:3001/api/chipform',chipForm)
 
     if (res.status === 201) {
       showToast('✅ 上传成功', 'success')
