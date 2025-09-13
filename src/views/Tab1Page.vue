@@ -394,38 +394,6 @@ const startNfcScan = async () => {
     return
   }
 
-  // try {
-  //   // 检查是否支持 NFC
-  //   const isAvailable = await NFC.isAvailable()
-  //   if (!isAvailable.value) {
-  //     alert('此设备不支持 NFC')
-  //     return
-  //   }
-
-  //   // 添加监听器
-  //   await NFC.addListener('nfcTagDiscovered', (event) => {
-  //     const tag = event.tag
-  //     console.log('扫描到 NFC 标签:', tag)
-
-  //     const id = tag.id || '无标签 ID'
-  //     const techList = tag.techList?.join(', ') || '未知协议'
-  //     const content = tag.ndefMessage
-  //       ? decodeNdef(tag.ndefMessage)
-  //       : '无 NDEF 数据'
-
-  //     alert(`NFC 标签内容：${content}\n协议：${techList}\nID：${id}`)
-
-  //     // 👉 监听完后可移除监听器（避免重复触发）
-  //     NFC.removeAllListeners()
-  //   })
-
-  //   // 开始监听 NFC（安卓自动激活，iOS 会自动弹出系统框）
-  //   await NFC.startScanning()
-  //   console.log('正在监听 NFC 标签...')
-  // } catch (error) {
-  //   console.error('NFC 扫描失败:', error)
-  //   alert('NFC 扫描失败，请检查权限或设备设置')
-  // }
 }
 
 
@@ -448,7 +416,7 @@ const fetchChipFormByCode = async () => {
   }
 
   try {
-    const res = await axios.get<ChipForm>(`http://172.20.10.3:3001/api/chipform/${chipForm.chipCode}`)
+    const res = await axios.get<ChipForm>(`http://loaclhost:3001/api/chipform/${chipForm.chipCode}`)
     Object.assign(chipForm, res.data)
     showToast('✅ 查询成功，数据已加载', 'success')
     console.log("查询结果：", res.data)
@@ -476,7 +444,7 @@ const uploadToCloud = async () => {
     const jsonString = JSON.stringify(chipForm) // 你已有
     console.log("🌐 准备上传到云端：", jsonString)
 
-    const res = await axios.post<UploadResponse>('http://172.20.10.3:3001/api/chipform',chipForm)
+    const res = await axios.post<UploadResponse>('http://localhost:3001/api/chipform',chipForm)
 
     if (res.status === 201) {
       showToast('✅ 上传成功', 'success')

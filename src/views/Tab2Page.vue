@@ -171,7 +171,7 @@ async function submitLogin() {
 
   loading.value = true
   try {
-    const response = await fetch('http://172.20.10.3:3001/api/chipform/login', {
+    const response = await fetch('http://localhost:3001/api/chipform/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
