@@ -28,16 +28,116 @@
       <!-- 主内容区 -->
       <ion-content >
       <!-- 新增的 NFC 提示区域，仅在非桌面端显示 -->
-      <div
-        v-if="!isDesktop"
-        class="nfc-hint-bfc"
-        @click="startNfcScan"
-        role="button"
-        tabindex="0"
-      >
-        <ion-icon :icon="radio" class="nfc-icon" />
-        <div class="nfc-text">{{ t('nfcHint') }}</div>
-      </div>
+  <!-- NFC 扫描按钮 -->
+ <div
+    v-if="!isDesktop"
+    class="nfc-hint-bfc"
+    @click="startNfcScan"
+    role="button"
+    tabindex="0"
+  >
+    <ion-icon :icon="radio" class="nfc-icon" />
+    <div class="nfc-text">{{ t('nfcHint') }}</div>
+  </div>
+
+  <!-- Modal -->
+  <ion-modal :is-open="isModalOpen" @didDismiss="isModalOpen = false">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>NFC 表单信息</ion-title>
+        <ion-buttons slot="end">
+          <ion-button @click="isModalOpen = false">关闭</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+      <ion-list>
+        <ion-item>
+          <ion-label position="stacked">公司</ion-label>
+          <ion-input v-model="chipForm.company"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">项目</ion-label>
+          <ion-input v-model="chipForm.project"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">结构</ion-label>
+          <ion-input v-model="chipForm.structure"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">承包商</ion-label>
+          <ion-input v-model="chipForm.contractor"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">供应商</ion-label>
+          <ion-input v-model="chipForm.supplier"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">编制人</ion-label>
+          <ion-input v-model="chipForm.preparedBy"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">试件尺寸</ion-label>
+          <ion-input v-model="chipForm.cubeSize"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">强度等级</ion-label>
+          <ion-input v-model="chipForm.grade"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">水泥</ion-label>
+          <ion-input v-model="chipForm.cement"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">细骨料</ion-label>
+          <ion-input v-model="chipForm.fineAggregate"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">粗骨料</ion-label>
+          <ion-input v-model="chipForm.coarseAggregate"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">外加剂</ion-label>
+          <ion-input v-model="chipForm.admixture"></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">芯片编号</ion-label>
+          <ion-input v-model="chipForm.chipCode" readonly></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">养护天数</ion-label>
+          <ion-input v-model="chipForm.testDays"></ion-input>
+        </ion-item>
+      </ion-list>
+
+      <ion-footer>
+        <ion-toolbar>
+          <ion-button expand="block" @click="submitNFC">
+            提交
+          </ion-button>
+        </ion-toolbar>
+        <ion-toolbar>
+          <ion-button expand="block" @click="writeChipFormToTag">
+          写入
+          </ion-button>
+        </ion-toolbar>
+      </ion-footer>
+    </ion-content>
+  </ion-modal>
       <div class="table-bfc">
         <ion-grid class="styled-grid ion-padding">
     <!-- 表头 -->
@@ -273,9 +373,11 @@ import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
 import { useUserStore } from '@/store/user'  // ⚠️ 导入pinia存储个人全局信息
 import { useScanStore } from '@/store/scan';
-import { Capacitor } from '@capacitor/core'
 import axios from 'axios'
 import { useI18n } from 'vue-i18n'
+import { Nfc, NfcUtils } from '@capawesome-team/capacitor-nfc';
+import { Capacitor } from '@capacitor/core'
+
 const userStore = useUserStore()
 const scanStore = useScanStore();
 const projectList= ['项目 A', '项目 B', '项目 C']
@@ -336,8 +438,9 @@ const chipForm = reactive<ChipForm>({
   testDays: ''
 })
 const initchipForm = reactive<ChipForm>({ ...chipForm })
-const isRefreshing = ref(false)
+
 const isDesktop = ref(false)
+const isModalOpen = ref(false)
 
 onMounted(() => {
   const ua = navigator.userAgent
@@ -383,58 +486,121 @@ async function openLangSheet() {
   })
   await actionSheet.present()
 }
+
 function handleRefresh() {
-  isRefreshing.value = true
-
-  setTimeout(() => {
-    Object.assign(chipForm, initchipForm) // ✅ 恢复初始状态
-    console.log('✅ 表单已重置')
-    isRefreshing.value = false
-  },100)
+  window.location.reload()
 }
 
 
+// 工具函数：字节转 hex
+const bytesToHex = (bytes: number[] | Uint8Array) =>
+  Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
+
+// NFC 扫描函数（支持读取自定义格式）
 const startNfcScan = async () => {
-  if (!Capacitor.isNativePlatform()) {
-    alert('请在真机中使用 NFC 功能')
-    showToast('打开NFC功能需要插件支持', 'warning')
-    return
+  try {
+    await Nfc.removeAllListeners()
+
+    const available = await Nfc.isAvailable()
+    if (!available?.nfc) return showToast('此设备不支持 NFC', 'warning')
+
+    const isEnabled = await Nfc.isEnabled()
+    if (!isEnabled) return showToast('请在系统设置中开启 NFC', 'warning')
+
+    if (Capacitor.getPlatform() === 'android') {
+      const { nfc } = await Nfc.checkPermissions()
+      if (nfc !== 'granted') {
+        const res = await Nfc.requestPermissions()
+        if (res.nfc !== 'granted') return showToast('NFC 权限被拒绝', 'danger')
+      }
+    }
+
+    showToast('请将设备靠近 NFC 标签', 'primary')
+
+    const listener = await Nfc.addListener('nfcTagScanned', async (event: any) => {
+      const tag = event?.nfcTag ?? event?.tag
+      if (!tag) return showToast('读取到无效标签', 'danger')
+
+      chipForm.chipCode = tag?.id ? bytesToHex(tag.id) : ''
+
+      // ✅ 解析自定义 MIME 类型数据
+      if (Array.isArray(tag?.ndefMessage) && tag.ndefMessage.length > 0) {
+        try {
+          const record = tag.ndefMessage[0]
+
+          if ((record.tnf ?? record.typeNameFormat) === 0x02) { // MIME type
+            const text = new TextDecoder().decode(record.payload)
+            const data = JSON.parse(text)
+            Object.assign(chipForm, data)
+            showToast('读取到已有数据，已填充表单', 'success')
+          } else {
+            Object.assign(chipForm, { ...initchipForm, chipCode: chipForm.chipCode })
+            showToast('标签内容非本应用格式，表单为空', 'warning')
+          }
+        } catch {
+          Object.assign(chipForm, { ...initchipForm, chipCode: chipForm.chipCode })
+          showToast('解析出错，表单为空', 'warning')
+        }
+      } else {
+        Object.assign(chipForm, { ...initchipForm, chipCode: chipForm.chipCode })
+      }
+
+      isModalOpen.value = true
+      await Nfc.stopScanSession()
+      await listener.remove()
+    })
+
+    await Nfc.startScanSession()
+  } catch (err) {
+    console.error(err)
+    showToast('NFC 扫描失败，请检查权限或设备设置', 'danger')
   }
-
-  // try {
-  //   // 检查是否支持 NFC
-  //   const isAvailable = await NFC.isAvailable()
-  //   if (!isAvailable.value) {
-  //     alert('此设备不支持 NFC')
-  //     return
-  //   }
-
-  //   // 添加监听器
-  //   await NFC.addListener('nfcTagDiscovered', (event) => {
-  //     const tag = event.tag
-  //     console.log('扫描到 NFC 标签:', tag)
-
-  //     const id = tag.id || '无标签 ID'
-  //     const techList = tag.techList?.join(', ') || '未知协议'
-  //     const content = tag.ndefMessage
-  //       ? decodeNdef(tag.ndefMessage)
-  //       : '无 NDEF 数据'
-
-  //     alert(`NFC 标签内容：${content}\n协议：${techList}\nID：${id}`)
-
-  //     // 👉 监听完后可移除监听器（避免重复触发）
-  //     NFC.removeAllListeners()
-  //   })
-
-  //   // 开始监听 NFC（安卓自动激活，iOS 会自动弹出系统框）
-  //   await NFC.startScanning()
-  //   console.log('正在监听 NFC 标签...')
-  // } catch (error) {
-  //   console.error('NFC 扫描失败:', error)
-  //   alert('NFC 扫描失败，请检查权限或设备设置')
-  // }
 }
 
+// NFC 写入函数（写入 chipForm 到标签，并同步表格）
+const writeChipFormToTag = async () => {
+  try {
+    showToast('请将设备靠近 NFC 标签', 'primary')
+
+    const utils = new NfcUtils()
+    const json = JSON.stringify(chipForm)
+    // ✅ 自定义 MIME 类型记录（使用通用 createNdefRecord 构造）
+    const encoder = new TextEncoder()
+    const { record } = utils.createNdefRecord({
+      tnf: 0x02, // MIME
+      type: Array.from(encoder.encode('application/vnd.myapp.chipform')),
+      id: [],
+      payload: Array.from(encoder.encode(json))
+    })
+
+    const listener = await Nfc.addListener('nfcTagScanned', async () => {
+      try {
+        await Nfc.write({ message: { records: [record] } })
+        showToast('写入成功', 'success')
+
+        // chipForm 已经是 reactive，表格会自动同步显示
+      } catch (e) {
+        console.error(e)
+        showToast('写入失败', 'danger')
+      } finally {
+        await listener.remove()
+        await Nfc.stopScanSession()
+      }
+    })
+
+    await Nfc.startScanSession()
+  } catch (err) {
+    console.error(err)
+    showToast('NFC 写入失败，请检查权限或设备设置', 'danger')
+  }
+}
+
+// 提交表单（只是关闭弹窗，同时 chipForm 已 reactive）
+const submitNFC = () => {
+  console.log('提交数据:', chipForm)
+  showToast('表单已提交', 'success')
+  isModalOpen.value = false
+}
 
 
 function getCurrentTime() {

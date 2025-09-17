@@ -32,6 +32,9 @@ importers:
       '@capacitor/status-bar':
         specifier: 7.0.1
         version: 7.0.1(@capacitor/core@7.4.2)
+      '@capawesome-team/capacitor-nfc':
+        specifier: ^7.3.0
+        version: 7.3.0(@capacitor/core@7.4.2)
       '@ionic/vue':
         specifier: ^8.0.0
         version: 8.7.2(@stencil/core@4.36.2)(vue-router@4.5.1(vue@3.5.18(typescript@5.6.3)))(vue@3.5.18(typescript@5.6.3))
@@ -652,6 +655,11 @@ packages:
 
   '@capacitor/status-bar@7.0.1':
     resolution: {integrity: sha512-iDv3mXYo9CdxYRVwt3/pRyuk25p7Sn4GfaS/zMZyVIqTzsvKLCIIH3GdKK+ta+nsNcAVpCw/t5jFEBt1D18ctA==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
+  '@capawesome-team/capacitor-nfc@7.3.0':
+    resolution: {integrity: sha512-JdiGf7mzKm6HHKOrL3No3aoCyv4LCZjCZB8ECCtxKf+Jhn1Zs/DMCjzVXYikQN4CF3qFWJyUYm7+KKOPQHIVsQ==, tarball: https://npm.registry.capawesome.io/download/@capawesome-team/capacitor-nfc/7.3.0/58d8ceeb088cb31db9da2981c1a404ada866d1e7}
     peerDependencies:
       '@capacitor/core': '>=7.0.0'
 
@@ -4155,6 +4163,10 @@ snapshots:
       '@capacitor/core': 7.4.2
 
   '@capacitor/status-bar@7.0.1(@capacitor/core@7.4.2)':
+    dependencies:
+      '@capacitor/core': 7.4.2
+
+  '@capawesome-team/capacitor-nfc@7.3.0(@capacitor/core@7.4.2)':
     dependencies:
       '@capacitor/core': 7.4.2
 
