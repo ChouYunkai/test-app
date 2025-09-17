@@ -6,7 +6,7 @@
             <div class="title-wrapper">
               <span class="title-content"> 
                 <ion-icon :icon="personCircle" class="title-icon" />
-                Account
+                {{ t('Account') }}
               </span>
             </div>
           </ion-title>
@@ -35,17 +35,17 @@
         <ion-list lines="none">
           <ion-item>
             <ion-icon :icon="personCircle" slot="start" color="primary" />
-            <ion-label>Role</ion-label>
+            <ion-label>{{ t('Role') }}</ion-label>
             <ion-note slot="end">{{ userStore.role }}</ion-note>
           </ion-item>
           <ion-item>
             <ion-icon :icon="shieldCheckmark" slot="start" color="secondary" />
-            <ion-label>Permission Level</ion-label>
+            <ion-label>{{ t('Permission Level') }}</ion-label>
             <ion-note slot="end">{{ userStore.permissionLevel }}</ion-note>
           </ion-item>
           <ion-item>
             <ion-icon :icon="business" slot="start" color="tertiary" />
-            <ion-label>Organization</ion-label>
+            <ion-label>{{ t('Organization') }}</ion-label>
             <ion-note slot="end">{{ userStore.organization }}</ion-note>
           </ion-item>
         </ion-list>
@@ -56,19 +56,19 @@
         <ion-list lines="inset">
           <ion-item button v-if="userStore.loggedIn" @click="managePermissions">
             <ion-icon slot="start" :icon="settingsOutline" />
-            <ion-label>Manage Permissions</ion-label>
+            <ion-label>{{ t('Manage Permissions') }}</ion-label>
           </ion-item>
           <ion-item button v-if="userStore.loggedIn" @click="changePassword">
             <ion-icon slot="start" :icon="keyIcon" />
-            <ion-label>Change Password</ion-label>
+            <ion-label>{{ t('Change Password') }}</ion-label>
           </ion-item>
           <ion-item button v-if="!userStore.loggedIn" @click="openLoginModal" lines="none">
             <ion-icon slot="start" :icon="logInOutline" color="primary" />
-            <ion-label color="primary">Login</ion-label>
+            <ion-label color="primary">{{ t('Login') }}</ion-label>
           </ion-item>
           <ion-item button v-if="userStore.loggedIn" @click="logout" lines="none">
             <ion-icon slot="start" :icon="logOutOutline" color="danger" />
-            <ion-label color="danger">Logout</ion-label>
+            <ion-label color="danger">{{ t('Logout') }}</ion-label>
           </ion-item>
         </ion-list>
       </ion-card>
@@ -77,7 +77,7 @@
         <ion-list lines="none">
           <ion-item>
             <ion-icon :icon="mail" slot="start" color="primary" />
-            <ion-label>Developer
+            <ion-label>{{ t('Developer') }}
             </ion-label>
             <ion-note slot="end">1207099632@qq.com</ion-note>
           </ion-item>
@@ -87,7 +87,7 @@
       <ion-modal :is-open="showLoginModal" @did-dismiss="closeLoginModal">
         <ion-header>
           <ion-toolbar>
-            <ion-title>Login</ion-title>
+            <ion-title>{{ t('Login') }}</ion-title>
             <ion-buttons slot="end">
               <ion-button @click="closeLoginModal">Cancel</ion-button>
             </ion-buttons>
@@ -115,6 +115,7 @@ import {
   ref,
   reactive
 } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import {
   IonPage,
@@ -151,6 +152,7 @@ import { useToast } from '@/components/useToast'
 
 
 const { showToast } = useToast()
+const { t } = useI18n()
 const showLoginModal = ref(false)
 const loading = ref(false)
 const loginForm = reactive({
@@ -171,7 +173,7 @@ async function submitLogin() {
 
   loading.value = true
   try {
-    const response = await fetch('http://172.20.10.3:3001/api/chipform/login', {
+    const response = await fetch('http://localhost:3001/api/chipform/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -199,7 +201,7 @@ async function submitLogin() {
     showToast(`欢迎回来，${userStore.name}`, 'success')
     // 关闭模态框
     closeLoginModal()
-    console.log('是否可以请求后端，http问题解决')
+
   } catch (error) {
     showToast('请求异常，请稍后重试', 'danger')
     console.error(error)

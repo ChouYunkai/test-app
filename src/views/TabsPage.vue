@@ -10,12 +10,12 @@
 
         <ion-tab-button tab="tab3" href="/tabs/tab3">
           <ion-icon size="large" :icon="qrCode" />
-          <ion-label>ScanQRCode</ion-label>
+          <ion-label>{{ t('ScanQRCode') }}</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="tab2" href="/tabs/tab2">
           <ion-icon :icon="person" size="large"></ion-icon>
-          <ion-label>Account</ion-label>
+          <ion-label>{{ t('Account') }}</ion-label>
         </ion-tab-button>
 
       </ion-tab-bar>
