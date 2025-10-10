@@ -42,12 +42,17 @@
     "selectTestDays":"选择实验天数",
     "ScanQRCode":"扫描二维码",
     "Account":"账户",
+    "cancel":"返回",
+    "password":"密码",
     "Please login to view account information":"请登录以查看账户信息",
 
     "tabs": {
         "home": "首页",
         "scanQRCode": "扫描二维码",
         "account": "账户"
-      }
+      },
+      "username": "用户名"
+
+
   }
   

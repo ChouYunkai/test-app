@@ -20,14 +20,14 @@
           <ion-avatar class="profile-avatar">
             <img src="https://www.gravatar.com/avatar?d=mp" />
           </ion-avatar>
-          <h2 class="username">{{ userStore.name }}</h2>
+          <h2 class="">{{ userStore.name }}</h2>
           <p class="user-email">{{ userStore.email }}</p>
         </ion-card-content>
       </ion-card>
 
       <!-- 未登录提示 -->
       <div v-else class="login-prompt">
-        <p>Please login to view account information.</p>
+        <p>{{ t('Please login to view account information') }}</p>
       </div>
 
       <!-- 账号信息卡片 -->
@@ -89,17 +89,25 @@
           <ion-toolbar>
             <ion-title>{{ t('Login') }}</ion-title>
             <ion-buttons slot="end">
-              <ion-button @click="closeLoginModal">Cancel</ion-button>
+              <ion-button @click="closeLoginModal">{{ t('cancel') }}</ion-button>
             </ion-buttons>
           </ion-toolbar>
         </ion-header>
 
         <ion-content class="ion-padding">
           <ion-item>
-          <ion-input v-model="loginForm.username" placeholder="Username" autocomplete="username" />
+          <ion-input 
+          v-model="loginForm.username"
+          type="text" 
+          :placeholder= "t('username')" 
+          autocomplete="username" />
           </ion-item>
           <ion-item>
-          <ion-input v-model="loginForm.password" type="password" placeholder="Password" autocomplete="current-password" />
+          <ion-input 
+          v-model="loginForm.password" 
+          type="password" 
+          :placeholder="t('password')"
+          autocomplete="current-password" />
           </ion-item>
           <ion-button expand="block" class="ion-margin-top" @click="submitLogin" :disabled="loading">
             {{ loading ? 'Logging in...' : 'Login' }}
