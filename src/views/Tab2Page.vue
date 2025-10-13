@@ -20,7 +20,7 @@
           <ion-avatar class="profile-avatar">
             <img src="https://www.gravatar.com/avatar?d=mp" />
           </ion-avatar>
-          <h2 class="">{{ userStore.name }}</h2>
+          <h2 class="username">{{ userStore.name }}</h2>
           <p class="user-email">{{ userStore.email }}</p>
         </ion-card-content>
       </ion-card>

@@ -480,7 +480,7 @@ async function openLangSheet() {
       },
       {
         text: '取消',
-        role: 'cancel',
+        role: 'cancel'
       }
     ]
   })
