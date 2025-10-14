@@ -154,10 +154,10 @@ app.listen(PORT, '0.0.0.0', () => {
 #### 4.3 更新前端API地址
 ```typescript
 // 修改前
-const response = await fetch('http://localhost:3001/api/chipform/login', {
+const response = await fetch('http://47.250.152.216:3001/api/chipform/login', {
 
 // 修改后（使用实际IP地址）
-const response = await fetch('http://172.20.10.3:3001/api/chipform/login', {
+const response = await fetch('http://47.250.152.216:3001/api/chipform/login', {
 ```
 
 ### 5. 数据库连接和认证问题

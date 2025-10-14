@@ -621,7 +621,7 @@ const fetchChipFormByCode = async () => {
   }
 
   try {
-    const res = await axios.get<ChipForm>(`http://localhost:3001/api/chipform/${chipForm.chipCode}`)
+    const res = await axios.get<ChipForm>(`http://47.250.152.216:3001/api/chipform/${chipForm.chipCode}`)
     Object.assign(chipForm, res.data)
     showToast('✅ 查询成功，数据已加载', 'success')
     console.log("查询结果：", res.data)
@@ -649,7 +649,7 @@ const uploadToCloud = async () => {
     const jsonString = JSON.stringify(chipForm) // 你已有
     console.log("🌐 准备上传到云端：", jsonString)
 
-    const res = await axios.post<UploadResponse>('http://localhost:3001/api/chipform',chipForm)
+    const res = await axios.post<UploadResponse>('http://47.250.152.216:3001/api/chipform',chipForm)
 
     if (res.status === 201) {
       showToast('✅ 上传成功', 'success')
