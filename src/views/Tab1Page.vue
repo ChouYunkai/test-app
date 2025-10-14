@@ -44,9 +44,9 @@
   <ion-modal :is-open="isModalOpen" @didDismiss="isModalOpen = false">
     <ion-header>
       <ion-toolbar>
-        <ion-title>NFC 表单信息</ion-title>
+        <ion-title>{{ t('NFC form information') }}</ion-title>
         <ion-buttons slot="end">
-          <ion-button @click="isModalOpen = false">关闭</ion-button>
+          <ion-button @click="isModalOpen = false">{{ t('close') }}</ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -54,72 +54,72 @@
     <ion-content>
       <ion-list>
         <ion-item>
-          <ion-label position="stacked">公司</ion-label>
+          <ion-label position="stacked">{{ t('company') }}</ion-label>
           <ion-input v-model="chipForm.company"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">项目</ion-label>
+          <ion-label position="stacked">{{ t('project') }}</ion-label>
           <ion-input v-model="chipForm.project"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">结构</ion-label>
+          <ion-label position="stacked">{{ t('structure') }}</ion-label>
           <ion-input v-model="chipForm.structure"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">承包商</ion-label>
+          <ion-label position="stacked">{{ t('contractor') }}</ion-label>
           <ion-input v-model="chipForm.contractor"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">供应商</ion-label>
+          <ion-label position="stacked">{{ t('supplier') }}</ion-label>
           <ion-input v-model="chipForm.supplier"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">编制人</ion-label>
+          <ion-label position="stacked">{{ t('preparedBy') }}</ion-label>
           <ion-input v-model="chipForm.preparedBy"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">试件尺寸</ion-label>
+          <ion-label position="stacked">{{ t('specimen size') }}</ion-label>
           <ion-input v-model="chipForm.cubeSize"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">强度等级</ion-label>
+          <ion-label position="stacked">{{ t('strength grade') }}</ion-label>
           <ion-input v-model="chipForm.grade"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">水泥</ion-label>
+          <ion-label position="stacked">{{ t('cement') }}</ion-label>
           <ion-input v-model="chipForm.cement"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">细骨料</ion-label>
+          <ion-label position="stacked">{{ t('fine aggregate') }}</ion-label>
           <ion-input v-model="chipForm.fineAggregate"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">粗骨料</ion-label>
+          <ion-label position="stacked">{{ t('coarse aggregate') }}</ion-label>
           <ion-input v-model="chipForm.coarseAggregate"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">外加剂</ion-label>
+          <ion-label position="stacked">{{ t('admixture') }}</ion-label>
           <ion-input v-model="chipForm.admixture"></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">芯片编号</ion-label>
+          <ion-label position="stacked">{{ t('chip number') }}</ion-label>
           <ion-input v-model="chipForm.chipCode" readonly></ion-input>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked">养护天数</ion-label>
+          <ion-label position="stacked">{{ t('curing days') }}</ion-label>
           <ion-input v-model="chipForm.testDays"></ion-input>
         </ion-item>
       </ion-list>
@@ -127,12 +127,12 @@
       <ion-footer>
         <ion-toolbar>
           <ion-button expand="block" @click="submitNFC">
-            提交
+          {{ t('submit') }}
           </ion-button>
         </ion-toolbar>
         <ion-toolbar>
           <ion-button expand="block" @click="writeChipFormToTag">
-          写入
+          {{ t('write') }}
           </ion-button>
         </ion-toolbar>
       </ion-footer>
