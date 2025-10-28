@@ -55,7 +55,10 @@
     "submit":"提交",
     "write":"写入",
     "input":"输入",
+    "fine aggregate":"细骨料",
+    "coarse aggregate":"粗骨料",
     "username": "用户名",
+    "welcome back":"欢迎回来",
     "tabs": {
         "home": "首页",
         "scanQRCode": "扫描二维码",
