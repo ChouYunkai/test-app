@@ -55,7 +55,9 @@
     "submit": "Submit",
     "Please login to view account information":"Please login to view account information",
     "input": "Input",
-    "write": "Write",
+    "welcome back":"Welcome back",
+    "fine aggregate":"fine aggregate",
+    "coarse aggregate":"coarse aggregate",
     "tabs": {
         "home": "Home",
         "scanQRCode": "Scan QR Code",

@@ -181,7 +181,7 @@ async function submitLogin() {
 
   loading.value = true
   try {
-    const response = await fetch('http://localhost:3001/api/chipform/login', {
+    const response = await fetch('http://47.250.152.216:3001/api/chipform/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -206,7 +206,7 @@ async function submitLogin() {
       permissionLevel: data.permission_level,
       organization: data.organization
     })
-    showToast(`欢迎回来，${userStore.name}`, 'success')
+    showToast(`${t('welcome back')}，${userStore.name}`, 'success')
     // 关闭模态框
     closeLoginModal()
 
