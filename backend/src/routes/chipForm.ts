@@ -152,6 +152,8 @@ router.get('/:chipCode', async (req, res) => {
       created_at AS createdAt
     FROM chip_form
     WHERE chip_code = ?
+    ORDER BY created_at DESC
+    LIMIT 1
     `
     try {
       const [rows] = await pool.query<RowDataPacket[]>(
