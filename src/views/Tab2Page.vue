@@ -206,7 +206,7 @@ async function submitLogin() {
       permissionLevel: data.permission_level,
       organization: data.organization
     })
-    showToast(`欢迎回来，${userStore.name}`, 'success')
+    showToast(`${t('welcome back')}, ${userStore.name}`, 'success')
     // 关闭模态框
     closeLoginModal()
 

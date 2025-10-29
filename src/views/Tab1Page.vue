@@ -30,7 +30,7 @@
       <!-- 新增的 NFC 提示区域，仅在非桌面端显示 -->
   <!-- NFC 扫描按钮 -->
  <div
-    v-if="!isDesktop"
+    v-if="!isDesktop && userStore.loggedIn"
     class="nfc-hint-bfc"
     @click="startNfcScan"
     role="button"

@@ -55,6 +55,9 @@
     "submit":"提交",
     "write":"写入",
     "input":"输入",
+    "coarse aggregate":"粗骨料",
+    "fine aggregate":"细骨料",
+    "welcom back":"欢迎回来",
     "username": "用户名",
     "tabs": {
         "home": "首页",
