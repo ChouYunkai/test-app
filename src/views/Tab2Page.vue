@@ -3,13 +3,13 @@
     <ion-header>
       <ion-toolbar class="background-gradient">
         <ion-title class="home-title">
-            <div class="title-wrapper">
-              <span class="title-content"> 
-                <ion-icon :icon="personCircle" class="title-icon" />
-                {{ t('Account') }}
-              </span>
-            </div>
-          </ion-title>
+          <div class="title-wrapper">
+            <span class="title-content"> 
+              <ion-icon :icon="personCircle" class="title-icon" />
+              {{ t('Account') }}
+            </span>
+          </div>
+        </ion-title>
       </ion-toolbar>
     </ion-header>
 
@@ -32,7 +32,7 @@
 
       <!-- 账号信息卡片 -->
       <ion-card class="info-card" v-if="userStore.loggedIn">
-        <ion-list lines="none">
+        <ion-list lines="inset">
           <ion-item>
             <ion-icon :icon="personCircle" slot="start" color="primary" />
             <ion-label>{{ t('Role') }}</ion-label>
@@ -43,7 +43,7 @@
             <ion-label>{{ t('Permission Level') }}</ion-label>
             <ion-note slot="end">{{ userStore.permissionLevel }}</ion-note>
           </ion-item>
-          <ion-item>
+          <ion-item lines="none">
             <ion-icon :icon="business" slot="start" color="tertiary" />
             <ion-label>{{ t('Organization') }}</ion-label>
             <ion-note slot="end">{{ userStore.organization }}</ion-note>
@@ -62,9 +62,14 @@
             <ion-icon slot="start" :icon="keyIcon" />
             <ion-label>{{ t('Change Password') }}</ion-label>
           </ion-item>
-          <ion-item button v-if="!userStore.loggedIn" @click="openLoginModal" lines="none">
+          <ion-item button v-if="!userStore.loggedIn" @click="openLoginModal">
             <ion-icon slot="start" :icon="logInOutline" color="primary" />
             <ion-label color="primary">{{ t('Login') }}</ion-label>
+          </ion-item>
+          <!-- ✅ “创建账号”按钮仅在未登录时显示 -->
+          <ion-item button v-if="!userStore.loggedIn" @click="openCreateAccountModal" lines="none">
+            <ion-icon slot="start" :icon="personAddOutline" color="primary" />
+            <ion-label color="primary">{{ t('Create Account') }}</ion-label>
           </ion-item>
           <ion-item button v-if="userStore.loggedIn" @click="logout" lines="none">
             <ion-icon slot="start" :icon="logOutOutline" color="danger" />
@@ -77,12 +82,12 @@
         <ion-list lines="none">
           <ion-item>
             <ion-icon :icon="mail" slot="start" color="primary" />
-            <ion-label>{{ t('Developer') }}
-            </ion-label>
+            <ion-label>{{ t('Developer') }}</ion-label>
             <ion-note slot="end">1207099632@qq.com</ion-note>
           </ion-item>
         </ion-list>  
       </ion-card>
+
       <!-- 登录弹窗 -->
       <ion-modal :is-open="showLoginModal" @did-dismiss="closeLoginModal">
         <ion-header>
@@ -96,96 +101,151 @@
 
         <ion-content class="ion-padding">
           <ion-item>
-          <ion-input 
-          v-model="loginForm.username"
-          type="text" 
-          :placeholder= "t('username')" 
-          autocomplete="username" />
+            <ion-input 
+              v-model="loginForm.email"
+              type="text" 
+              :placeholder="t('Email')" 
+              autocomplete="email" />
           </ion-item>
           <ion-item>
-          <ion-input 
-          v-model="loginForm.password" 
-          type="password" 
-          :placeholder="t('password')"
-          autocomplete="current-password" />
+            <ion-input 
+              v-model="loginForm.password" 
+              type="password" 
+              :placeholder="t('Password')"
+              autocomplete="current-password" />
           </ion-item>
           <ion-button expand="block" class="ion-margin-top" @click="submitLogin" :disabled="loading">
             {{ loading ? 'Logging in...' : 'Login' }}
           </ion-button>
         </ion-content>
       </ion-modal>
+
+      <!-- ✅ 创建账号模态框（已新增 name / permission_level / organization） -->
+      <ion-modal :is-open="showCreateAccountModal" @did-dismiss="closeCreateAccountModal">
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>{{ t('Create Account') }}</ion-title>
+            <ion-buttons slot="end">
+              <ion-button @click="closeCreateAccountModal">{{ t('Cancel') }}</ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+
+        <ion-content class="ion-padding">
+          <ion-item>
+            <ion-input 
+              v-model="createAccountForm.name" 
+              type="text" 
+              :placeholder="t('Name')" 
+              autocomplete="name" />
+          </ion-item>
+          <ion-item>
+            <ion-input 
+              v-model="createAccountForm.email" 
+              type="text" 
+              :placeholder="t('Email')" 
+              autocomplete="email" />
+          </ion-item>
+          <ion-item>
+            <ion-input 
+              v-model="createAccountForm.password" 
+              type="password" 
+              :placeholder="t('Password')" 
+              autocomplete="new-password" />
+          </ion-item>
+          <ion-item>
+            <ion-input 
+              v-model="createAccountForm.role" 
+              type="text" 
+              :placeholder="t('Role')" 
+              autocomplete="off" />
+          </ion-item>
+          <ion-item>
+            <ion-input 
+              v-model="createAccountForm.permission_level" 
+              type="text" 
+              :placeholder="t('Permission Level')" 
+              autocomplete="off" />
+          </ion-item>
+          <ion-item>
+            <ion-input 
+              v-model="createAccountForm.organization" 
+              type="text" 
+              :placeholder="t('Organization')" 
+              autocomplete="organization" />
+          </ion-item>
+          <ion-button expand="block" class="ion-margin-top" @click="submitCreateAccount" :disabled="loading">
+            {{ loading ? 'Creating account...' : t('Create Account') }}
+          </ion-button>
+        </ion-content>
+      </ion-modal>
+
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import {
-  ref,
-  reactive
-} from 'vue'
+import { ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonButtons,
-  IonButton,
-  IonIcon,
-  IonAvatar,
-  IonItem,
-  IonLabel,
-  IonInput,
-  IonNote,
-  IonList,
-  IonCard,
-  IonCardContent,
-  IonModal
+  IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton,
+  IonIcon, IonAvatar, IonItem, IonLabel, IonInput, IonNote, IonList, IonCard,
+  IonCardContent, IonModal
 } from '@ionic/vue'
 
 import {
-  personCircle,
-  shieldCheckmark,
-  business,
-  settingsOutline,
-  keyOutline as keyIcon,
-  logInOutline,
-  logOutOutline,
-  mail
+  personCircle, shieldCheckmark, business, settingsOutline,
+  keyOutline as keyIcon, logInOutline, logOutOutline,
+  personAddOutline, mail
 } from 'ionicons/icons'
+
 import { useUserStore } from '@/store/user'
 import { useToast } from '@/components/useToast'
-
 
 const { showToast } = useToast()
 const { t } = useI18n()
 const showLoginModal = ref(false)
+const showCreateAccountModal = ref(false)
 const loading = ref(false)
 const loginForm = reactive({
-  username: '',
+  email: '',
   password: ''
 })
+
+// ✅ 扩展后的创建账号表单
+const createAccountForm = reactive({
+  name: '',
+  email: '',
+  password: '',
+  role: '',
+  permission_level: '',
+  organization: ''
+})
+
 const userStore = useUserStore()
 
 function openLoginModal() {
   showLoginModal.value = true
 }
 
+function openCreateAccountModal() {
+  showCreateAccountModal.value = true
+}
+
 async function submitLogin() {
-  if (!loginForm.username || !loginForm.password) {
-    showToast('请输入用户名和密码', 'warning')
+  if (!loginForm.email || !loginForm.password) {
+    showToast('请输入邮箱和密码', 'warning')
     return
   }
 
   loading.value = true
   try {
-    const response = await fetch('http://localhost:3001/api/chipform/login', {
+    const response = await fetch('http://192.168.212.246:3001/api/chipform/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        email: loginForm.username,  // 如果后端用email做用户名
+        email: loginForm.email, 
         password: loginForm.password
       })
     })
@@ -198,7 +258,6 @@ async function submitLogin() {
     }
 
     const data = await response.json()
-
     userStore.login({
       name: data.name,
       email: data.email,
@@ -206,8 +265,7 @@ async function submitLogin() {
       permissionLevel: data.permission_level,
       organization: data.organization
     })
-    showToast(`欢迎回来，${userStore.name}`, 'success')
-    // 关闭模态框
+    showToast(`${t('welcome back')}, ${userStore.name}`, 'success')
     closeLoginModal()
 
   } catch (error) {
@@ -218,12 +276,79 @@ async function submitLogin() {
   }
 }
 
+async function submitCreateAccount() {
+  if (
+    !createAccountForm.name ||
+    !createAccountForm.email ||
+    !createAccountForm.password ||
+    !createAccountForm.role ||
+    !createAccountForm.permission_level ||
+    !createAccountForm.organization
+  ) {
+    showToast(t('Please fill in all fields'), 'warning')
+    return
+  }
+
+  if (createAccountForm.role === 'admin') {
+    showToast(t('Admin role is not allowed'), 'danger')
+    return
+  }
+
+  loading.value = true
+  try {
+    const response = await fetch('http://192.168.212.246:3001/api/chipform/create-account', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: createAccountForm.name,
+        email: createAccountForm.email,
+        password: createAccountForm.password,
+        role: createAccountForm.role,
+        permission_level: createAccountForm.permission_level,
+        organization: createAccountForm.organization
+      })
+    })
+
+    if (!response.ok) {
+      const err = await response.json()
+      showToast(`${t('Create Account Failed')}: ${err.message}`, 'danger')
+      loading.value = false
+      return
+    }
+
+    const data = await response.json()
+    userStore.login({
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      permissionLevel: data.permission_level,
+      organization: data.organization
+    })
+    showToast(`${t('Account created successfully')}! ${t('Welcome back')}, ${userStore.name}`, 'success')
+    closeCreateAccountModal()
+  } catch (error) {
+    showToast(`${t('Request error, please try again later')}`, 'danger')
+    console.error(error)
+  } finally {
+    loading.value = false
+  }
+}
 
 function closeLoginModal() {
   showLoginModal.value = false
-  // 清空表单
-  loginForm.username = ''
+  loginForm.email = ''
   loginForm.password = ''
+  loading.value = false
+}
+
+function closeCreateAccountModal() {
+  showCreateAccountModal.value = false
+  createAccountForm.name = ''
+  createAccountForm.email = ''
+  createAccountForm.password = ''
+  createAccountForm.role = ''
+  createAccountForm.permission_level = ''
+  createAccountForm.organization = ''
   loading.value = false
 }
 
@@ -231,15 +356,12 @@ function logout() {
   userStore.logout()
 }
 
-
 function managePermissions() {
   showToast('Please connect manager', 'danger')
-  console.log('Go to permissions page')
 }
 
 function changePassword() {
   showToast('Please connect manager', 'danger')
-  console.log('Navigate to change password')
 }
 </script>
 
@@ -249,70 +371,57 @@ function changePassword() {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 100%; /* 确保高度继承，便于垂直居中 */
+  height: 100%;
 }
-
 .title-icon {
   font-size: 20px;
   color: #000;
 }
 .background-gradient {
-    --background: 
-      linear-gradient(to bottom, transparent, #fff 240px),
-      radial-gradient(20% 150px at 70% 230px, rgba(255, 255, 255, 0.5), transparent),
-      radial-gradient(40% 180px at 80% 50px, rgba(249, 236, 224, 0.35), transparent),
-      radial-gradient(50% 300px at 90% 100px, rgba(255, 255, 255, 0.76), transparent),
-      radial-gradient(20% 150px at 0px 0px, rgba(96, 205, 235, 0.54), transparent),
-      radial-gradient(30% 200px at 100px 50px, rgba(225, 160, 160, 0.45), transparent),
-      #f4f4f4 !important;
-    min-height: 60px; /* 默认是56px，可改为64或72 */
-    height: 64px;
-    padding-top: 18px;  /* 可选，避免内容挤压 */
-  }
+  --background: 
+    linear-gradient(to bottom, transparent, #fff 240px),
+    radial-gradient(20% 150px at 70% 230px, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(40% 180px at 80% 50px, rgba(249, 236, 224, 0.35), transparent),
+    radial-gradient(50% 300px at 90% 100px, rgba(255, 255, 255, 0.76), transparent),
+    radial-gradient(20% 150px at 0px 0px, rgba(96, 205, 235, 0.54), transparent),
+    radial-gradient(30% 200px at 100px 50px, rgba(225, 160, 160, 0.45), transparent),
+    #f4f4f4 !important;
+}
 .page-bg {
   --background: #f6f7f9;
 }
-
 .home-title {
   display: flex;
-  justify-content: center; /* 水平居中 */
-  align-items: center;     /* 垂直居中 */
+  justify-content: center;
+  align-items: center;
   font-size: 20px;
   font-weight: bold;
-  text-align: center;
 }
-
 .profile-card,
 .info-card,
 .action-card {
   margin-bottom: 16px;
   border-radius: 12px;
-  box-shadow: none;
 }
-
 .profile-content {
   text-align: center;
   padding: 24px 16px;
 }
-
 .profile-avatar {
   width: 80px;
   height: 80px;
   margin: 0 auto 12px;
 }
-
 .username {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
 }
-
 .user-email {
   margin: 4px 0 0;
   color: #666;
   font-size: 14px;
 }
-
 .login-prompt {
   text-align: center;
   color: #888;

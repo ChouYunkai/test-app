@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import { pool } from '../db';
 import { RowDataPacket } from 'mysql2';
+
 const router = Router();
 
 // 获取所有芯片表单数据
@@ -21,7 +22,7 @@ router.post('/search', async (req, res) => {
     const { projectName, supplier } = req.body;
 
     let sql = 'SELECT * FROM chip_form WHERE 1=1';
-    const params = [];
+    const params: any[] = [];
 
     if (projectName) {
       sql += ' AND REPLACE(project, " ", "") LIKE ?';
@@ -40,7 +41,8 @@ router.post('/search', async (req, res) => {
     res.status(500).json({ message: '数据库查询失败' });
   }
 });
-// 新增
+
+// 新增芯片数据
 router.post('/add', async (req, res) => {
   try {
     const data = req.body;
@@ -64,13 +66,13 @@ router.post('/add', async (req, res) => {
   }
 });
 
-// 修改
+// 修改芯片数据
 router.post('/update', async (req, res) => {
   try {
     const data = req.body;
     const sql = `UPDATE chip_form SET 
       project=?, structure=?, contractor=?, supervisor=?, supplier=?, contact=?, size=?, strength=?,
-      cementBrand=?, sandType=?, gravelType=?, admixture=?, batchNo=?, curingPeriod=?, timestamp=?
+      cementBrand=?, sandType=?, gravelType=?, admixture=?, batchNo=?, curingPeriod=?, timestamp=? 
       WHERE id=?`;
 
     const params = [
@@ -87,19 +89,19 @@ router.post('/update', async (req, res) => {
     res.status(500).json({ message: '修改失败' });
   }
 });
+
 // 删除记录
 router.delete('/delete/:id', async (req, res) => {
   try {
-    const { id } = req.params
-    const sql = 'DELETE FROM chip_form WHERE id = ?'
-    await pool.query(sql, [id])
-    res.json({ message: '删除成功' })
+    const { id } = req.params;
+    const sql = 'DELETE FROM chip_form WHERE id = ?';
+    await pool.query(sql, [id]);
+    res.json({ message: '删除成功' });
   } catch (err) {
-    console.error('❌ 删除失败:', err)
-    res.status(500).json({ message: '删除失败' })
+    console.error('❌ 删除失败:', err);
+    res.status(500).json({ message: '删除失败' });
   }
 });
-
 
 // 插入新的芯片表单数据
 router.post('/', async (req, res) => {
@@ -129,56 +131,40 @@ router.post('/', async (req, res) => {
   }
 });
 
-// GET /api/chipform/:chipCode
+// 按 chipCode 查询
 router.get('/:chipCode', async (req, res) => {
-    const { chipCode } = req.params;
-    const sql = `
+  const { chipCode } = req.params;
+  const sql = `
     SELECT
-      id,
-      company,
-      project,
-      structure,
-      contractor,
-      supplier,
-      prepared_by AS preparedBy,
-      cube_size AS cubeSize,
-      grade,
-      cement,
-      fine_aggregate AS fineAggregate,
-      coarse_aggregate AS coarseAggregate,
-      admixture,
-      chip_code AS chipCode,
-      test_days AS testDays,
-      created_at AS createdAt
+      id, company, project, structure, contractor, supplier,
+      prepared_by AS preparedBy, cube_size AS cubeSize, grade, cement,
+      fine_aggregate AS fineAggregate, coarse_aggregate AS coarseAggregate,
+      admixture, chip_code AS chipCode, test_days AS testDays, created_at AS createdAt
     FROM chip_form
-    WHERE chip_code = ?
-    `
-    try {
-      const [rows] = await pool.query<RowDataPacket[]>(
-        sql,[chipCode]
-      );
-      console.log('查询结果条数:', rows.length);
-      if (rows.length > 0) {
-        res.json(rows[0]);
-      } else {
-        res.status(404).json({ message: '未找到对应试块编号' });
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: '查询失败' });
+    WHERE chip_code = ?`;
+  try {
+    const [rows] = await pool.query<RowDataPacket[]>(sql, [chipCode]);
+    console.log('查询结果条数:', rows.length);
+    if (rows.length > 0) {
+      res.json(rows[0]);
+    } else {
+      res.status(404).json({ message: '未找到对应试块编号' });
     }
-  });
-  
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: '查询失败' });
+  }
+});
+
 // 登录接口
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body
+  const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ message: '邮箱和密码不能为空' })
+    return res.status(400).json({ message: '邮箱和密码不能为空' });
   }
 
   try {
-    // 创建users表（如果不存在）
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -190,34 +176,75 @@ router.post('/login', async (req, res) => {
         organization VARCHAR(100) DEFAULT 'Default Organization',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
-    `)
+    `);
 
-    // 插入测试用户（如果不存在）
     await pool.query(`
       INSERT IGNORE INTO users (name, email, password, role, permission_level, organization) 
       VALUES ('测试用户', 'test@example.com', '123456', 'admin', 'high', '测试公司')
-    `)
+    `);
 
     const [rows] = await pool.query(
       `SELECT name, email, role, permission_level, organization 
        FROM users 
        WHERE email = ? AND password = ?`,
       [email, password]
-    )
+    );
 
-    const result = rows as any[]
+    const result = rows as any[];
 
     if (result.length === 0) {
-      return res.status(401).json({ message: '账号或密码错误' })
+      return res.status(401).json({ message: '账号或密码错误' });
     }
 
-    const user = result[0]
-
-    return res.status(200).json(user)
+    const user = result[0];
+    return res.status(200).json(user);
   } catch (error) {
-    console.error('数据库出错:', error)
-    return res.status(500).json({ message: '服务器内部错误' })
+    console.error('数据库出错:', error);
+    return res.status(500).json({ message: '服务器内部错误' });
   }
-})
+});
+
+// ✅ 新增创建用户接口（支持6个字段）
+router.post('/create-account', async (req, res) => {
+  const { name, email, password, role, permission_level, organization } = req.body;
+
+  console.log('📩 收到创建用户请求，请求数据:', req.body);
+
+  if (!email || !password || !role) {
+    return res.status(400).json({ message: '请提供必要字段（邮箱、密码、角色）' });
+  }
+
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
+        password VARCHAR(100) NOT NULL,
+        role VARCHAR(50) DEFAULT 'User',
+        permission_level VARCHAR(50) DEFAULT 'normal',
+        organization VARCHAR(100) DEFAULT 'Default Organization',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    const [existingUser] = await pool.query<RowDataPacket[]>('SELECT * FROM users WHERE email = ?', [email]);
+    if (existingUser.length > 0) {
+      return res.status(400).json({ message: '该邮箱已存在' });
+    }
+
+    const [result] = await pool.query(
+      'INSERT INTO users (name, email, password, role, permission_level, organization) VALUES (?, ?, ?, ?, ?, ?)',
+      [name || '', email, password, role, permission_level || 'normal', organization || 'Default Organization']
+    );
+
+    console.log('✅ 用户创建成功:', result);
+
+    return res.status(201).json({ message: '用户创建成功', userId: (result as any).insertId });
+  } catch (error: any) {
+    console.error('❌ 创建用户失败:', error.message || error);
+    return res.status(500).json({ message: '服务器错误，请稍后重试', error: error.message });
+  }
+});
 
 export default router;

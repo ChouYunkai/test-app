@@ -56,6 +56,10 @@
     "Please login to view account information":"Please login to view account information",
     "input": "Input",
     "write": "Write",
+    "Email":"Email",
+    "Password":"Password",
+    "Create Account":"Create Account",
+    "name":"Name",
     "tabs": {
         "home": "Home",
         "scanQRCode": "Scan QR Code",

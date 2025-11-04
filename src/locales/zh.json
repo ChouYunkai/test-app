@@ -56,6 +56,10 @@
     "write":"写入",
     "input":"输入",
     "username": "用户名",
+    "Email":"邮箱",
+    "Create Account":"创建账户",
+    "Password":"密码",
+    "name":"姓名",
     "tabs": {
         "home": "首页",
         "scanQRCode": "扫描二维码",
