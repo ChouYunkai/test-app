@@ -130,6 +130,89 @@ router.post('/', async (req, res) => {
     res.status(500).json({ message: '插入失败' });
   }
 });
+// 获取选项信息接口（从 information 表读取）
+router.get('/options/information', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT \`project\`, \`cube size\`, \`test Days\` FROM information WHERE id IS NOT NULL`
+    );
+
+    const result = {
+      project: [] as string[],
+      cubeSize: [] as string[],
+      testDays: [] as string[]
+    };
+
+    const projectSet = new Set<string>();
+    const cubeSizeSet = new Set<string>();
+    const testDaysSet = new Set<string>();
+
+    (rows as any[]).forEach((row: any) => {
+      if (row.project && String(row.project).trim() !== '') {
+        projectSet.add(String(row.project).trim());
+      }
+      
+      const cubeSizeValue = row['cube size'] || row['cube_size'] || row.cubeSize;
+      if (cubeSizeValue && String(cubeSizeValue).trim() !== '') {
+        cubeSizeSet.add(String(cubeSizeValue).trim());
+      }
+      
+      const testDaysValue = row['test Days'] || row['test_days'] || row.testDays || row['testDays'] || row['test_days'];
+      if (testDaysValue && String(testDaysValue).trim() !== '') {
+        testDaysSet.add(String(testDaysValue).trim());
+      }
+    });
+
+    result.project = Array.from(projectSet).sort();
+    result.cubeSize = Array.from(cubeSizeSet).sort();
+    result.testDays = Array.from(testDaysSet).sort();
+
+    res.json(result);
+  } catch (error: any) {
+    if (error.message?.includes('Unknown column') || error.code === 'ER_BAD_FIELD_ERROR') {
+      try {
+        const [rows] = await pool.query(
+          `SELECT project, cube_size, test_days FROM information WHERE id IS NOT NULL`
+        );
+        
+        const result = {
+          project: [] as string[],
+          cubeSize: [] as string[],
+          testDays: [] as string[]
+        };
+
+        const projectSet = new Set<string>();
+        const cubeSizeSet = new Set<string>();
+        const testDaysSet = new Set<string>();
+
+        (rows as any[]).forEach((row: any) => {
+          if (row.project && String(row.project).trim() !== '') {
+            projectSet.add(String(row.project).trim());
+          }
+          if (row.cube_size && String(row.cube_size).trim() !== '') {
+            cubeSizeSet.add(String(row.cube_size).trim());
+          }
+          if (row.test_days && String(row.test_days).trim() !== '') {
+            testDaysSet.add(String(row.test_days).trim());
+          }
+        });
+
+        result.project = Array.from(projectSet).sort();
+        result.cubeSize = Array.from(cubeSizeSet).sort();
+        result.testDays = Array.from(testDaysSet).sort();
+
+        return res.json(result);
+      } catch (retryError) {
+        console.error('获取选项信息失败:', retryError);
+      }
+    }
+    console.error('获取选项信息失败:', error);
+    res.status(500).json({ message: '获取选项信息失败', error: String(error) });
+  }
+});
+
+// GET /api/chipform/:chipCode
+// ⚠️ 注意：这个参数路由必须放在所有具体路由之后，否则会拦截其他路由
 
 // 按 chipCode 查询
 router.get('/:chipCode', async (req, res) => {

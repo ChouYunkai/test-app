@@ -380,21 +380,51 @@ import { Capacitor } from '@capacitor/core'
 
 const userStore = useUserStore()
 const scanStore = useScanStore();
-const projectList= ['项目 A', '项目 B', '项目 C']
-const cubeSize = ['150*150', '100*100', '50*50']
-const testDays = ['7 days', '14 days', '28 days']
-const testDaysOptions = testDays.map(item =>({
+// 从数据库获取的选项数据
+const projectList = ref<string[]>([])
+const cubeSize = ref<string[]>([])
+const testDays = ref<string[]>([])
+const testDaysOptions = computed(() => testDays.value.map(item => ({
   label: item,
   value: item
-})) 
-const cubeOptions = cubeSize.map(item => ({
+})))
+const cubeOptions = computed(() => cubeSize.value.map(item => ({
   label: item,
   value: item
-}))
-const projectOptions = projectList.map(item => ({
+})))
+const projectOptions = computed(() => projectList.value.map(item => ({
   label: item,
   value: item
-}))
+})))
+
+// 获取 API 基础 URL
+const getBaseURL = () => {
+  const platform = Capacitor.getPlatform()
+  if (platform === 'android') {
+    return 'http://192.168.212.246:3001'  // ⚠️ 请根据后端启动日志中的实际IP修改此地址
+  } else {
+    // Web/桌面端使用 localhost
+    return 'http://192.168.212.246:3001'
+  }
+}
+
+// 从数据库加载选项数据
+const loadOptionsFromDatabase = async () => {
+  try {
+    const baseURL = getBaseURL()
+    const url = `${baseURL}/api/chipform/options/information`
+    const res = await axios.get<InformationOptions>(url)
+    
+    projectList.value = res.data.project || []
+    cubeSize.value = res.data.cubeSize || []
+    testDays.value = res.data.testDays || []
+  } catch (error: any) {
+    // 如果加载失败，使用默认值
+    projectList.value = ['加载错误请重试']
+    cubeSize.value = ['加载错误请重试']
+    testDays.value = ['加载错误请重试']
+  }
+}
 const { showToast } = useToast()
 const isAdmin = computed(() => userStore.role === 'Administrator')
 
@@ -419,7 +449,11 @@ interface UploadResponse {
   message: string
   insertId: number
 }
-
+interface InformationOptions {
+  project: string[]
+  cubeSize: string[]
+  testDays: string[]
+}
 // 初始化表单数据
 const chipForm = reactive<ChipForm>({
   company: '浙江工业大学',
@@ -445,6 +479,7 @@ const isModalOpen = ref(false)
 onMounted(() => {
   const ua = navigator.userAgent
   isDesktop.value = /Windows|Macintosh|Linux/i.test(ua) && !/Mobile|Android|iPhone|iPad/i.test(ua)
+  loadOptionsFromDatabase()
 })
 
 watch(
@@ -621,7 +656,7 @@ const fetchChipFormByCode = async () => {
   }
 
   try {
-    const res = await axios.get<ChipForm>(`http://192.168.131.246/api/chipform/${chipForm.chipCode}`)
+    const res = await axios.get<ChipForm>(`${getBaseURL()}/api/chipform/${chipForm.chipCode}`)
     Object.assign(chipForm, res.data)
     showToast('✅ 查询成功，数据已加载', 'success')
     console.log("查询结果：", res.data)
@@ -649,7 +684,7 @@ const uploadToCloud = async () => {
     const jsonString = JSON.stringify(chipForm) // 你已有
     console.log("🌐 准备上传到云端：", jsonString)
 
-    const res = await axios.post<UploadResponse>('http://192.168.212.246:3001/api/chipform',chipForm)
+    const res = await axios.post<UploadResponse>(`${getBaseURL()}/api/chipform`, chipForm)
 
     if (res.status === 201) {
       showToast('✅ 上传成功', 'success')

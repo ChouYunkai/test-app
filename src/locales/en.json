@@ -59,7 +59,7 @@
     "Email":"Email",
     "Password":"Password",
     "Create Account":"Create Account",
-    "name":"Name",
+    "Name":"Name",
     "tabs": {
         "home": "Home",
         "scanQRCode": "Scan QR Code",
