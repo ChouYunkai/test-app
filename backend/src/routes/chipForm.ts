@@ -22,7 +22,7 @@ router.post('/search', async (req, res) => {
     const { projectName, supplier } = req.body;
 
     let sql = 'SELECT * FROM chip_form WHERE 1=1';
-    const params: any[] = [];
+    const params = [];
 
     if (projectName) {
       sql += ' AND REPLACE(project, " ", "") LIKE ?';
@@ -72,7 +72,7 @@ router.post('/update', async (req, res) => {
     const data = req.body;
     const sql = `UPDATE chip_form SET 
       project=?, structure=?, contractor=?, supervisor=?, supplier=?, contact=?, size=?, strength=?,
-      cementBrand=?, sandType=?, gravelType=?, admixture=?, batchNo=?, curingPeriod=?, timestamp=? 
+      cementBrand=?, sandType=?, gravelType=?, admixture=?, batchNo=?, curingPeriod=?, timestamp=?
       WHERE id=?`;
 
     const params = [
@@ -89,17 +89,16 @@ router.post('/update', async (req, res) => {
     res.status(500).json({ message: '修改失败' });
   }
 });
-
 // 删除记录
 router.delete('/delete/:id', async (req, res) => {
   try {
-    const { id } = req.params;
-    const sql = 'DELETE FROM chip_form WHERE id = ?';
-    await pool.query(sql, [id]);
-    res.json({ message: '删除成功' });
+    const { id } = req.params
+    const sql = 'DELETE FROM chip_form WHERE id = ?'
+    await pool.query(sql, [id])
+    res.json({ message: '删除成功' })
   } catch (err) {
-    console.error('❌ 删除失败:', err);
-    res.status(500).json({ message: '删除失败' });
+    console.error('❌ 删除失败:', err)
+    res.status(500).json({ message: '删除失败' })
   }
 });
 
@@ -216,17 +215,32 @@ router.get('/options/information', async (req, res) => {
 
 // 按 chipCode 查询
 router.get('/:chipCode', async (req, res) => {
-  const { chipCode } = req.params;
-  const sql = `
+    const { chipCode } = req.params;
+    const sql = `
     SELECT
-      id, company, project, structure, contractor, supplier,
-      prepared_by AS preparedBy, cube_size AS cubeSize, grade, cement,
-      fine_aggregate AS fineAggregate, coarse_aggregate AS coarseAggregate,
-      admixture, chip_code AS chipCode, test_days AS testDays, created_at AS createdAt
+      id, 
+      company, 
+      project,
+      structure, 
+      contractor, 
+      supplier,
+      prepared_by AS preparedBy,
+      cube_size AS cubeSize, grade, cement,
+      fine_aggregate AS fineAggregate,
+      coarse_aggregate AS coarseAggregate,
+      admixture, 
+      chip_code AS chipCode,
+      test_days AS testDays, 
+      created_at AS createdAt
     FROM chip_form
-    WHERE chip_code = ?`;
+    WHERE chip_code = ?
+    ORDER BY created_at DESC
+    LIMIT 1
+    `
   try {
-    const [rows] = await pool.query<RowDataPacket[]>(sql, [chipCode]);
+    const [rows] = await pool.query<RowDataPacket[]>(
+      sql, [chipCode]
+    );
     console.log('查询结果条数:', rows.length);
     if (rows.length > 0) {
       res.json(rows[0]);

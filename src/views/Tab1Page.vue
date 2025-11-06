@@ -420,9 +420,9 @@ const loadOptionsFromDatabase = async () => {
     testDays.value = res.data.testDays || []
   } catch (error: any) {
     // 如果加载失败，使用默认值
-    projectList.value = ['加载错误请重试']
-    cubeSize.value = ['加载错误请重试']
-    testDays.value = ['加载错误请重试']
+    projectList.value = [t('Loading Error. Please try again')]
+    cubeSize.value = [t('Loading Error. Please try again')]
+    testDays.value = [t('Loading Error. Please try again')]
   }
 }
 const { showToast } = useToast()
@@ -658,7 +658,7 @@ const fetchChipFormByCode = async () => {
   try {
     const res = await axios.get<ChipForm>(`${getBaseURL()}/api/chipform/${chipForm.chipCode}`)
     Object.assign(chipForm, res.data)
-    showToast('✅ 查询成功，数据已加载', 'success')
+    showToast(t('Query Successful, Data has been loaded', 'success'),'success')
     console.log("查询结果：", res.data)
   } catch (err: any) {
     if (err.response?.status === 404) {

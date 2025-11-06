@@ -60,6 +60,8 @@
     "Create Account":"创建账户",
     "Password":"密码",
     "Name":"姓名",
+    "Loading Error. Please try again":"加载错误请重试",
+    "Query Successful, Data has been loaded":"查询成功，数据已加载",
     "tabs": {
         "home": "首页",
         "scanQRCode": "扫描二维码",

@@ -60,6 +60,8 @@
     "Password":"Password",
     "Create Account":"Create Account",
     "Name":"Name",
+    "Loading Error. Please try again":"Loading Error. Please try again",
+    "Query Successful, Data has been loaded":"Query Successful, Data has been loaded",
     "tabs": {
         "home": "Home",
         "scanQRCode": "Scan QR Code",

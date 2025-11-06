@@ -266,6 +266,7 @@ async function submitLogin() {
       organization: data.organization
     })
     showToast(`${t('welcome back')}, ${userStore.name}`, 'success')
+    //关闭模态框
     closeLoginModal()
 
   } catch (error) {
