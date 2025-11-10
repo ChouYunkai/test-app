@@ -29,13 +29,15 @@ import { BarcodeScanner } from '@capacitor-community/barcode-scanner'
 import { IonPage, IonContent, IonButton, IonIcon } from '@ionic/vue'
 import { arrowBackCircle } from 'ionicons/icons'
 import { useScanStore } from '@/store/scan'
+import { useI18n } from 'vue-i18n'
 const router = useRouter()
 const scanStore = useScanStore()
+const { t }: { t: (key: string, named?: Record<string, any>) => string } = useI18n()
 /* ---------- 开始扫描 ---------- */
 const startScan = async () => {
   const status = await BarcodeScanner.checkPermission({ force: true })
   if (!status.granted) {
-    alert('需要相机权限才能扫码')
+    alert(t('Camera permission is required to scan codes'))
     router.back()
     return
   }
@@ -50,7 +52,7 @@ const startScan = async () => {
   const result = await BarcodeScanner.startScan()
   if (result.hasContent) {
     scanStore.setScanResult(result.content);
-    alert('扫码结果: ' + result.content)
+    alert(`${t('Scan code result:')} ${result.content}`)
     router.replace('/tabs/tab1'); // 跳转到首页
   }
   stopScan()
