@@ -241,7 +241,7 @@ async function submitLogin() {
 
   loading.value = true
   try {
-    const response = await fetch('http://192.168.212.246:3001/api/chipform/login', {
+    const response = await fetch('http://localhost:3001/api/chipform/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -290,14 +290,15 @@ async function submitCreateAccount() {
     return
   }
 
-  if (createAccountForm.role === 'admin') {
-    showToast(t('Admin role is not allowed'), 'danger')
-    return
-  }
+  if (createAccountForm.role.trim() === 'Administrator') {
+  showToast(t('Administrator role is not allowed'), 'danger')
+  return
+}
+
 
   loading.value = true
   try {
-    const response = await fetch('http://192.168.212.246:3001/api/chipform/create-account', {
+    const response = await fetch('http://localhost:3001/api/chipform/create-account', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -318,14 +319,7 @@ async function submitCreateAccount() {
     }
 
     const data = await response.json()
-    userStore.login({
-      name: data.name,
-      email: data.email,
-      role: data.role,
-      permissionLevel: data.permission_level,
-      organization: data.organization
-    })
-    showToast(`${t('Account created successfully')}! ${t('Welcome back')}, ${userStore.name}`, 'success')
+    showToast(`${t('Account created successfully')}! ${t('Please login to continue')}`, 'success')
     closeCreateAccountModal()
   } catch (error) {
     showToast(`${t('Request error, please try again later')}`, 'danger')

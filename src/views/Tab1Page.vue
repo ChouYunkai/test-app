@@ -179,7 +179,7 @@
         <ion-item lines="none" class="input-item">
           <ion-input
             v-model="chipForm.structure"
-            :placeholder="t('Add Structure')"
+            :placeholder="t('Structure')"
             clear-input
            :disabled="!isAdmin"
           ></ion-input>
@@ -193,7 +193,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.contractor"
-            :placeholder="t('Add Contractor')"
+            :placeholder="t('Contractor')"
             clear-input
            :disabled="!isAdmin"
           ></ion-input>
@@ -207,7 +207,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.supplier"
-            :placeholder="t('Add Supplier')"
+            :placeholder="t('Supplier')"
             clear-input
            :disabled="!isAdmin"
           ></ion-input>
@@ -221,7 +221,7 @@
         <ion-item lines="none" class="input-item">
           <ion-input
             v-model="chipForm.preparedBy"
-            :placeholder="t('Add Info')"
+            :placeholder="t('Info')"
             clear-input
            :disabled="!isAdmin"
           ></ion-input>
@@ -247,7 +247,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.grade"
-            :placeholder="t('Add Grade')"
+            :placeholder="t('Grade')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -261,7 +261,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.cement"
-            :placeholder="t('Add cement info')"
+            :placeholder="t('cement info')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -275,7 +275,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.fineAggregate"
-            :placeholder="t('Add fineAggregate')"
+            :placeholder="t('fineAggregate')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -289,7 +289,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.coarseAggregate"
-            :placeholder="t('Add coarseAggregate')"
+            :placeholder="t('coarseAggregate')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -315,7 +315,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.chipCode"
-            :placeholder="t('Add chipcode')"
+            :placeholder="t('chipcode')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -410,10 +410,10 @@ const projectOptions = computed(() => projectList.value.map(item => ({
 const getBaseURL = () => {
   const platform = Capacitor.getPlatform()
   if (platform === 'android') {
-    return 'http://192.168.212.246:3001'  // ⚠️ 请根据后端启动日志中的实际IP修改此地址
+    return 'http://localhost:3001'  // ⚠️ 请根据后端启动日志中的实际IP修改此地址
   } else {
     // Web/桌面端使用 localhost
-    return 'http://192.168.212.246:3001'
+    return 'http://localhost:3001'
   }
 }
 
