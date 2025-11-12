@@ -148,8 +148,17 @@
 
     <!-- 数据行 -->
     <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('companyName') }}</ion-col>
-      <ion-col size="6" class="cell">{{ chipForm.company }}</ion-col>
+      <ion-col size="6" class="cell">{{ t('Company Name') }}</ion-col>
+      <ion-col size="6" class="cell">
+        <ion-item lines="none" class="input-item">
+          <ion-input
+            v-model="chipForm.company"
+            :placeholder="t('Company')"
+            clear-input
+           :disabled="!isAdmin"
+          ></ion-input>
+        </ion-item>
+      </ion-col>
     </ion-row>
 
     <ion-row class="styled-row">
@@ -170,7 +179,7 @@
         <ion-item lines="none" class="input-item">
           <ion-input
             v-model="chipForm.structure"
-            :placeholder="t('Add Structure')"
+            :placeholder="t('Structure')"
             clear-input
            :disabled="!isAdmin"
           ></ion-input>
@@ -184,7 +193,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.contractor"
-            :placeholder="t('Add Contractor')"
+            :placeholder="t('Contractor')"
             clear-input
            :disabled="!isAdmin"
           ></ion-input>
@@ -198,7 +207,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.supplier"
-            :placeholder="t('Add Suppier')"
+            :placeholder="t('Supplier')"
             clear-input
            :disabled="!isAdmin"
           ></ion-input>
@@ -212,7 +221,7 @@
         <ion-item lines="none" class="input-item">
           <ion-input
             v-model="chipForm.preparedBy"
-            :placeholder="t('Add Info.')"
+            :placeholder="t('Info')"
             clear-input
            :disabled="!isAdmin"
           ></ion-input>
@@ -238,7 +247,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.grade"
-            :placeholder="t('Add Grade')"
+            :placeholder="t('Grade')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -252,7 +261,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.cement"
-            :placeholder="t('Add cement info')"
+            :placeholder="t('cement info')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -266,7 +275,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.fineAggregate"
-            :placeholder="t('Add fineAggregate')"
+            :placeholder="t('fineAggregate')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -280,7 +289,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.coarseAggregate"
-            :placeholder="t('Add coarseAggregate')"
+            :placeholder="t('coarseAggregate')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -306,7 +315,7 @@
         <ion-item lines="none" class="input-item">
         <ion-input
             v-model="chipForm.chipCode"
-            :placeholder="t('Add chipcode')"
+            :placeholder="t('chipcode')"
             clear-input
             :disabled="!isAdmin"
           ></ion-input>
@@ -401,10 +410,10 @@ const projectOptions = computed(() => projectList.value.map(item => ({
 const getBaseURL = () => {
   const platform = Capacitor.getPlatform()
   if (platform === 'android') {
-    return 'http://192.168.212.246:3001'  // ⚠️ 请根据后端启动日志中的实际IP修改此地址
+    return 'http://localhost:3001'  // ⚠️ 请根据后端启动日志中的实际IP修改此地址
   } else {
     // Web/桌面端使用 localhost
-    return 'http://192.168.212.246:3001'
+    return 'http://localhost:3001'
   }
 }
 
@@ -456,7 +465,7 @@ interface InformationOptions {
 }
 // 初始化表单数据
 const chipForm = reactive<ChipForm>({
-  company: '浙江工业大学',
+  company: '',
   project: '',
   structure: '',
   contractor: '',
@@ -537,24 +546,24 @@ const startNfcScan = async () => {
     await Nfc.removeAllListeners()
 
     const available = await Nfc.isAvailable()
-    if (!available?.nfc) return showToast('此设备不支持 NFC', 'warning')
+    if (!available?.nfc) return showToast(t('This device does not support NFC'), 'warning')
 
     const isEnabled = await Nfc.isEnabled()
-    if (!isEnabled) return showToast('请在系统设置中开启 NFC', 'warning')
+    if (!isEnabled) return showToast(t('Please enable NFC in system settings'), 'warning')
 
     if (Capacitor.getPlatform() === 'android') {
       const { nfc } = await Nfc.checkPermissions()
       if (nfc !== 'granted') {
         const res = await Nfc.requestPermissions()
-        if (res.nfc !== 'granted') return showToast('NFC 权限被拒绝', 'danger')
+        if (res.nfc !== 'granted') return showToast(t('NFC permission denied'), 'danger')
       }
     }
 
-    showToast('请将设备靠近 NFC 标签', 'primary')
+    showToast(t('Please bring the device close to the NFC tag'), 'primary')
 
     const listener = await Nfc.addListener('nfcTagScanned', async (event: any) => {
       const tag = event?.nfcTag ?? event?.tag
-      if (!tag) return showToast('读取到无效标签', 'danger')
+      if (!tag) return showToast(t('Invalid tag detected'), 'danger')
 
       chipForm.chipCode = tag?.id ? bytesToHex(tag.id) : ''
 
@@ -567,14 +576,14 @@ const startNfcScan = async () => {
             const text = new TextDecoder().decode(record.payload)
             const data = JSON.parse(text)
             Object.assign(chipForm, data)
-            showToast('读取到已有数据，已填充表单', 'success')
+            showToast(t('Existing data read; form filled automatically'), 'success')
           } else {
             Object.assign(chipForm, { ...initchipForm, chipCode: chipForm.chipCode })
-            showToast('标签内容非本应用格式，表单为空', 'warning')
+            showToast(t('Tag content is not in the app format; form is empty'), 'warning')
           }
         } catch {
           Object.assign(chipForm, { ...initchipForm, chipCode: chipForm.chipCode })
-          showToast('解析出错，表单为空', 'warning')
+          showToast(t('Parsing error; form is empty'), 'warning')
         }
       } else {
         Object.assign(chipForm, { ...initchipForm, chipCode: chipForm.chipCode })
@@ -588,14 +597,14 @@ const startNfcScan = async () => {
     await Nfc.startScanSession()
   } catch (err) {
     console.error(err)
-    showToast('NFC 扫描失败，请检查权限或设备设置', 'danger')
+    showToast(t('NFC scan failed. Please check permissions or device settings'), 'danger')
   }
 }
 
 // NFC 写入函数（写入 chipForm 到标签，并同步表格）
 const writeChipFormToTag = async () => {
   try {
-    showToast('请将设备靠近 NFC 标签', 'primary')
+    showToast(t('Please bring the device close to the NFC tag'), 'primary')
 
     const utils = new NfcUtils()
     const json = JSON.stringify(chipForm)
@@ -611,12 +620,12 @@ const writeChipFormToTag = async () => {
     const listener = await Nfc.addListener('nfcTagScanned', async () => {
       try {
         await Nfc.write({ message: { records: [record] } })
-        showToast('写入成功', 'success')
+        showToast(t('Write successful'), 'success')
 
         // chipForm 已经是 reactive，表格会自动同步显示
       } catch (e) {
         console.error(e)
-        showToast('写入失败', 'danger')
+        showToast(t('Write failed'), 'danger')
       } finally {
         await listener.remove()
         await Nfc.stopScanSession()
@@ -626,14 +635,14 @@ const writeChipFormToTag = async () => {
     await Nfc.startScanSession()
   } catch (err) {
     console.error(err)
-    showToast('NFC 写入失败，请检查权限或设备设置', 'danger')
+    showToast(t('NFC write failed. Please check permissions or device settings'), 'danger')
   }
 }
 
 // 提交表单（只是关闭弹窗，同时 chipForm 已 reactive）
 const submitNFC = () => {
-  console.log('提交数据:', chipForm)
-  showToast('表单已提交', 'success')
+  console.log('Submit data:', chipForm)
+  showToast(t('Form submitted'), 'success')
   isModalOpen.value = false
 }
 
@@ -651,7 +660,7 @@ function getCurrentTime() {
 
 const fetchChipFormByCode = async () => {
   if (!chipForm.chipCode.trim()) {
-    showToast('请输入试块编号', 'warning')
+    showToast(t('Please enter the test block number'), 'warning')
     return
   }
 
@@ -659,13 +668,13 @@ const fetchChipFormByCode = async () => {
     const res = await axios.get<ChipForm>(`${getBaseURL()}/api/chipform/${chipForm.chipCode}`)
     Object.assign(chipForm, res.data)
     showToast(t('Query Successful, Data has been loaded', 'success'),'success')
-    console.log("查询结果：", res.data)
+    console.log("Query result：", res.data)
   } catch (err: any) {
     if (err.response?.status === 404) {
-      showToast('未找到对应试块编号', 'danger')
+      showToast(t('No corresponding test block number found'), 'danger')
     } else {
-      console.error("查询失败：", err)
-      showToast('服务器异常或网络错误', 'danger')
+      console.error("Query failed：", err)
+      showToast(t('Server exception or network error'), 'danger')
     }
   }
 }
@@ -677,25 +686,25 @@ const hasEmptyField = (obj: Record<string, any>): boolean => {
 // 上传到云端
 const uploadToCloud = async () => {
   if (hasEmptyField(chipForm)) {
-    showToast('❌ 请填写完整所有字段后再上传', 'danger')
+    showToast('❌ ' + t('Please fill in all fields before uploading'), 'danger')
     return
   }
   try {
     const jsonString = JSON.stringify(chipForm) // 你已有
-    console.log("🌐 准备上传到云端：", jsonString)
+    console.log("🌐 Preparing to upload to the cloud：", jsonString)
 
     const res = await axios.post<UploadResponse>(`${getBaseURL()}/api/chipform`, chipForm)
 
     if (res.status === 201) {
-      showToast('✅ 上传成功', 'success')
-      console.log("✅ 成功插入数据库,ID:", res.data.insertId)
-    } else {
-      showToast('❌ 上传失败', 'danger')
-      console.error("⚠️ 插入失败：", res.data)
-    }
-  } catch (err) {
-    console.error("❌ 网络或服务器错误：", err)
-    showToast('❌ 上传失败，请检查网络或服务器', 'danger')
+  showToast('✅ ' + t('Upload successful'), 'success')
+  console.log("✅ Successfully inserted into the database. ID:", res.data.insertId)
+} else {
+  showToast('❌ ' + t('Upload failed'), 'danger')
+  console.error("⚠️ Insert failed:", res.data)
+}
+} catch (err) {
+  console.error("❌ Network or server error:", err)
+  showToast('❌ ' + t('Upload failed. Please check the network or server'), 'danger')
   }
 }
 </script>

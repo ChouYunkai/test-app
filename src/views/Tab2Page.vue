@@ -235,13 +235,13 @@ function openCreateAccountModal() {
 
 async function submitLogin() {
   if (!loginForm.email || !loginForm.password) {
-    showToast('请输入邮箱和密码', 'warning')
+    showToast(t('Please enter your email and password'), 'warning')
     return
   }
 
   loading.value = true
   try {
-    const response = await fetch('http://192.168.212.246:3001/api/chipform/login', {
+    const response = await fetch('http://localhost:3001/api/chipform/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -252,7 +252,7 @@ async function submitLogin() {
 
     if (!response.ok) {
       const err = await response.json()
-      showToast('登录失败: ' + err.message, 'danger')
+      showToast(t('Login failed: ' + err.message), 'danger')
       loading.value = false
       return
     }
@@ -270,7 +270,7 @@ async function submitLogin() {
     closeLoginModal()
 
   } catch (error) {
-    showToast('请求异常，请稍后重试', 'danger')
+    showToast(t('Request error. Please try again later'), 'danger')
     console.error(error)
   } finally {
     loading.value = false
@@ -290,14 +290,15 @@ async function submitCreateAccount() {
     return
   }
 
-  if (createAccountForm.role === 'admin') {
-    showToast(t('Admin role is not allowed'), 'danger')
-    return
-  }
+  if (createAccountForm.role.trim() === 'Administrator') {
+  showToast(t('Administrator role is not allowed'), 'danger')
+  return
+}
+
 
   loading.value = true
   try {
-    const response = await fetch('http://192.168.212.246:3001/api/chipform/create-account', {
+    const response = await fetch('http://localhost:3001/api/chipform/create-account', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -318,14 +319,7 @@ async function submitCreateAccount() {
     }
 
     const data = await response.json()
-    userStore.login({
-      name: data.name,
-      email: data.email,
-      role: data.role,
-      permissionLevel: data.permission_level,
-      organization: data.organization
-    })
-    showToast(`${t('Account created successfully')}! ${t('Welcome back')}, ${userStore.name}`, 'success')
+    showToast(`${t('Account created successfully')}! ${t('Please login to continue')}`, 'success')
     closeCreateAccountModal()
   } catch (error) {
     showToast(`${t('Request error, please try again later')}`, 'danger')
@@ -358,11 +352,13 @@ function logout() {
 }
 
 function managePermissions() {
-  showToast('Please connect manager', 'danger')
+  showToast(t('Please connect manager'), 'danger')
+  console.log('Go to permissions page')
 }
 
 function changePassword() {
-  showToast('Please connect manager', 'danger')
+  showToast(t('Please connect manager'), 'danger')
+  console.log('Navigate to change password')
 }
 </script>
 
@@ -387,6 +383,9 @@ function changePassword() {
     radial-gradient(20% 150px at 0px 0px, rgba(96, 205, 235, 0.54), transparent),
     radial-gradient(30% 200px at 100px 50px, rgba(225, 160, 160, 0.45), transparent),
     #f4f4f4 !important;
+    min-height: 60px; /* 默认是56px，可改为64或72 */
+    height: 64px;
+    padding-top: 18px;  /* 可选，避免内容挤压 */
 }
 .page-bg {
   --background: #f6f7f9;
@@ -397,12 +396,14 @@ function changePassword() {
   align-items: center;
   font-size: 20px;
   font-weight: bold;
+  text-align: center;
 }
 .profile-card,
 .info-card,
 .action-card {
   margin-bottom: 16px;
   border-radius: 12px;
+  box-shadow: none;
 }
 .profile-content {
   text-align: center;
