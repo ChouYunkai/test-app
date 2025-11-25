@@ -410,10 +410,10 @@ const projectOptions = computed(() => projectList.value.map(item => ({
 const getBaseURL = () => {
   const platform = Capacitor.getPlatform()
   if (platform === 'android') {
-    return 'http://localhost:3001'  // ⚠️ 请根据后端启动日志中的实际IP修改此地址
+    return 'http://47.250.152.216:3001'  // ⚠️ 请根据后端启动日志中的实际IP修改此地址
   } else {
     // Web/桌面端使用 localhost
-    return 'http://localhost:3001'
+    return 'http://47.250.152.216:3001'
   }
 }
 

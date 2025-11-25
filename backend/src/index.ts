@@ -15,5 +15,5 @@ app.use('/api/chipform', chipFormRouter);
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running at http://0.0.0.0:${PORT}`);
   console.log(`Local access: http://localhost:${PORT}`);
-  console.log(`Android emulator access: http://192.168.212.246:3001`);
+  console.log(`Android emulator access: http://47.250.152.216:3001`);
 });

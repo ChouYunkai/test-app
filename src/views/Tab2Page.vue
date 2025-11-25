@@ -241,7 +241,7 @@ async function submitLogin() {
 
   loading.value = true
   try {
-    const response = await fetch('http://localhost:3001/api/chipform/login', {
+    const response = await fetch('http://47.250.152.216:3001/api/chipform/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -298,7 +298,7 @@ async function submitCreateAccount() {
 
   loading.value = true
   try {
-    const response = await fetch('http://localhost:3001/api/chipform/create-account', {
+    const response = await fetch('http://47.250.152.216:3001/api/chipform/create-account', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -319,8 +319,9 @@ async function submitCreateAccount() {
     }
 
     const data = await response.json()
-    showToast(`${t('Account created successfully')}! ${t('Please login to continue')}`, 'success')
+    showToast(`${t('Account created successfully')}`, 'success')
     closeCreateAccountModal()
+
   } catch (error) {
     showToast(`${t('Request error, please try again later')}`, 'danger')
     console.error(error)
