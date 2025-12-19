@@ -142,8 +142,8 @@
         <ion-grid class="styled-grid ion-padding">
     <!-- 表头 -->
     <ion-row class="styled-row header-row">
-      <ion-col size="6" class="cell"><strong>Field Label</strong></ion-col>
-      <ion-col size="6" class="cell"><strong>Value</strong></ion-col>
+          <ion-col size="6" class="cell"><strong>{{ t('fieldLabel') }}</strong></ion-col>
+          <ion-col size="6" class="cell"><strong>{{ t('value') }}</strong></ion-col>
     </ion-row>
 
     <!-- 数据行 -->
@@ -235,7 +235,7 @@
         <ProjectSelect
           v-model="chipForm.cubeSize"
           :options="cubeOptions"
-          :placeholder="t('Select Cube Size')"
+          :placeholder="t('Select Cube_Size')"
           :disabled="!isAdmin"
         />
       </ion-col>

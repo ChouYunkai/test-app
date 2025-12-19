@@ -2,6 +2,8 @@
 import express from 'express';
 import cors from 'cors';
 import chipFormRouter from './routes/chipForm';
+import informationRouter from './routes/information';
+import usersRouter from './routes/users';
 
 const app = express();
 const PORT = 3001;
@@ -11,6 +13,8 @@ app.use(express.json());
 
 // 挂载表单接口
 app.use('/api/chipform', chipFormRouter);
+app.use('/api/information', informationRouter);
+app.use('/api/users', usersRouter);
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running at http://0.0.0.0:${PORT}`);

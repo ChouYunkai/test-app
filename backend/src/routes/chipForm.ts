@@ -47,16 +47,27 @@ router.post('/add', async (req, res) => {
   try {
     const data = req.body;
     const sql = `INSERT INTO chip_form 
-      (id, project, structure, contractor, supervisor, supplier, contact, size, strength,
-       cementBrand, sandType, gravelType, admixture, batchNo, curingPeriod, timestamp) 
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+      (company, project, structure, contractor, supplier, prepared_by, cube_size, 
+      grade, cement, fine_aggregate, coarse_aggregate, admixture, chip_code, test_days) 
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
 
     const params = [
-      data.id, data.project, data.structure, data.contractor, data.supervisor,
-      data.supplier, data.contact, data.size, data.strength,
-      data.cementBrand, data.sandType, data.gravelType, data.admixture,
-      data.batchNo, data.curingPeriod, data.timestamp
+      data.company,
+      data.project, 
+      data.structure, 
+      data.contractor, 
+      data.supplier, 
+      data.prepared_by, // Web前端是下划线，数据库也是下划线，直接存！
+      data.cube_size, 
+      data.grade,
+      data.cement, 
+      data.fine_aggregate, // 修复了之前的 sandType
+      data.coarse_aggregate, // 修复了之前的 gravelType
+      data.admixture, 
+      data.chip_code, 
+      data.test_days // 修复了之前的 curingPeriod
     ];
+     
 
     await pool.query(sql, params);
     res.json({ message: '新增成功' });
@@ -71,14 +82,37 @@ router.post('/update', async (req, res) => {
   try {
     const data = req.body;
     const sql = `UPDATE chip_form SET 
-      project=?, structure=?, contractor=?, supervisor=?, supplier=?, contact=?, size=?, strength=?,
-      cementBrand=?, sandType=?, gravelType=?, admixture=?, batchNo=?, curingPeriod=?, timestamp=?
+      company=?,
+      project=?, 
+      structure=?, 
+      contractor=?, 
+      supplier=?, 
+      prepared_by=?, 
+      cube_size=?, 
+      grade=?, 
+      cement=?, 
+      fine_aggregate=?, 
+      coarse_aggregate=?, 
+      admixture=?, 
+      chip_code=?, 
+      test_days=?
       WHERE id=?`;
 
     const params = [
-      data.project, data.structure, data.contractor, data.supervisor, data.supplier,
-      data.contact, data.size, data.strength, data.cementBrand, data.sandType,
-      data.gravelType, data.admixture, data.batchNo, data.curingPeriod, data.timestamp,
+      data.company,
+      data.project, 
+      data.structure, 
+      data.contractor, 
+      data.supplier, 
+      data.prepared_by,
+      data.cube_size, 
+      data.grade, 
+      data.cement, 
+      data.fine_aggregate, 
+      data.coarse_aggregate,
+      data.admixture, 
+      data.chip_code, 
+      data.test_days,
       data.id
     ];
 
@@ -133,7 +167,7 @@ router.post('/', async (req, res) => {
 router.get('/options/information', async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT \`project\`, \`cube size\`, \`test Days\` FROM information WHERE id IS NOT NULL`
+      `SELECT \`project\`, \`cube_size\`, \`test_days\` FROM information WHERE id IS NOT NULL`
     );
 
     const result = {
@@ -151,12 +185,12 @@ router.get('/options/information', async (req, res) => {
         projectSet.add(String(row.project).trim());
       }
       
-      const cubeSizeValue = row['cube size'] || row['cube_size'] || row.cubeSize;
+      const cubeSizeValue = row['cube_size'] || row['cube_size'] || row.cubeSize;
       if (cubeSizeValue && String(cubeSizeValue).trim() !== '') {
         cubeSizeSet.add(String(cubeSizeValue).trim());
       }
       
-      const testDaysValue = row['test Days'] || row['test_days'] || row.testDays || row['testDays'] || row['test_days'];
+      const testDaysValue = row['test_Days'] || row['test_days'] || row.testDays || row['testDays'] || row['test_days'];
       if (testDaysValue && String(testDaysValue).trim() !== '') {
         testDaysSet.add(String(testDaysValue).trim());
       }
