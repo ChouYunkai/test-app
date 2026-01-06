@@ -1,361 +1,236 @@
 <template>
   <ion-page>
-      <ion-header>
-        <ion-toolbar class="background-gradient">
-            <!-- 左侧按钮 -->
-          <ion-buttons slot="start">
-            <ion-button @click="openLangSheet">
-              <ion-icon slot="icon-only" :icon="globe" />
-            </ion-button>
-          </ion-buttons>
-          <ion-title class="home-title">
-            <div class="title-wrapper">
-              <span class="title-content"> 
-                <ion-icon :icon="home" class="title-icon" />
-                {{ t('index') }}
-              </span>
-            </div>
-          </ion-title>
-
-          <ion-buttons slot="end">
-            <ion-button @click="handleRefresh">
-              <ion-icon slot="icon-only" :icon="refresh" />
-            </ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-      
-      <!-- 主内容区 -->
-      <ion-content >
-      <!-- 新增的 NFC 提示区域，仅在非桌面端显示 -->
-  <!-- NFC 扫描按钮 -->
- <div
-    v-if="!isDesktop && userStore.loggedIn"
-    class="nfc-hint-bfc"
-    @click="startNfcScan"
-    role="button"
-    tabindex="0"
-  >
-    <ion-icon :icon="radio" class="nfc-icon" />
-    <div class="nfc-text">{{ t('nfcHint') }}</div>
-  </div>
-
-  <!-- Modal -->
-  <ion-modal :is-open="isModalOpen" @didDismiss="isModalOpen = false">
     <ion-header>
-      <ion-toolbar>
-        <ion-title>{{ t('NFC form information') }}</ion-title>
+      <ion-toolbar class="background-gradient">
+        <ion-buttons slot="start">
+          <ion-button @click="openLangSheet">
+            <ion-icon slot="icon-only" :icon="globe" />
+          </ion-button>
+        </ion-buttons>
+
+        <ion-title class="home-title">
+          <div class="title-wrapper">
+            <span class="title-content"> 
+              <ion-icon :icon="cubeOutline" class="title-icon" />
+              {{ t('Tank Management') }}
+            </span>
+          </div>
+        </ion-title>
+
         <ion-buttons slot="end">
-          <ion-button @click="isModalOpen = false">{{ t('close') }}</ion-button>
+          <ion-button @click="handleRefresh">
+            <ion-icon slot="icon-only" :icon="refresh" />
+          </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-
+      
     <ion-content>
-      <ion-list>
-        <ion-item>
-          <ion-label position="stacked">{{ t('company') }}</ion-label>
-          <ion-input v-model="chipForm.company"></ion-input>
-        </ion-item>
+      
+      <ion-modal :is-open="isModalOpen" @didDismiss="isModalOpen = false">
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>{{ t('NFC Tag Data') }}</ion-title>
+            <ion-buttons slot="end">
+              <ion-button @click="isModalOpen = false">{{ t('close') }}</ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+           <ion-list>
+             <ion-item><ion-label position="stacked">{{ t('Tank Name') }}</ion-label><ion-input v-model="tankForm.tankName"></ion-input></ion-item>
+             <ion-item><ion-label position="stacked">{{ t('Tag ID') }}</ion-label><ion-input v-model="tankForm.tagId" readonly></ion-input></ion-item>
+             <ion-button expand="block" @click="submitNFC" class="ion-margin-top">{{ t('Sync Data') }}</ion-button>
+           </ion-list>
+        </ion-content>
+      </ion-modal>
 
-        <ion-item>
-          <ion-label position="stacked">{{ t('project') }}</ion-label>
-          <ion-input v-model="chipForm.project"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">{{ t('structure') }}</ion-label>
-          <ion-input v-model="chipForm.structure"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">{{ t('contractor') }}</ion-label>
-          <ion-input v-model="chipForm.contractor"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">{{ t('supplier') }}</ion-label>
-          <ion-input v-model="chipForm.supplier"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">{{ t('preparedBy') }}</ion-label>
-          <ion-input v-model="chipForm.preparedBy"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">{{ t('specimen size') }}</ion-label>
-          <ion-input v-model="chipForm.cubeSize"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">{{ t('strength grade') }}</ion-label>
-          <ion-input v-model="chipForm.grade"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">{{ t('cement') }}</ion-label>
-          <ion-input v-model="chipForm.cement"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">{{ t('fine aggregate') }}</ion-label>
-          <ion-input v-model="chipForm.fineAggregate"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">{{ t('coarse aggregate') }}</ion-label>
-          <ion-input v-model="chipForm.coarseAggregate"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">{{ t('admixture') }}</ion-label>
-          <ion-input v-model="chipForm.admixture"></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">{{ t('chip number') }}</ion-label>
-          <ion-input v-model="chipForm.chipCode" readonly></ion-input>
-        </ion-item>
-
-        <ion-item>
-          <ion-label position="stacked">{{ t('curing days') }}</ion-label>
-          <ion-input v-model="chipForm.testDays"></ion-input>
-        </ion-item>
-      </ion-list>
-
-      <ion-footer>
-        <ion-toolbar>
-          <ion-button expand="block" @click="submitNFC">
-          {{ t('submit') }}
-          </ion-button>
-        </ion-toolbar>
-        <ion-toolbar>
-          <ion-button expand="block" @click="writeChipFormToTag">
-          {{ t('write') }}
-          </ion-button>
-        </ion-toolbar>
-      </ion-footer>
-    </ion-content>
-  </ion-modal>
       <div class="table-bfc">
         <ion-grid class="styled-grid ion-padding">
-    <!-- 表头 -->
-    <ion-row class="styled-row header-row">
-      <ion-col size="6" class="cell"><strong>Field Label</strong></ion-col>
-      <ion-col size="6" class="cell"><strong>Value</strong></ion-col>
-    </ion-row>
+          <ion-row class="styled-row header-row">
+            <ion-col size="5" class="cell"><strong>{{ t('Parameter') }}</strong></ion-col>
+            <ion-col size="7" class="cell"><strong>{{ t('Value') }}</strong></ion-col>
+          </ion-row>
 
-    <!-- 数据行 -->
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('Company Name') }}</ion-col>
-      <ion-col size="6" class="cell">
-        <ion-item lines="none" class="input-item">
-          <ion-input
-            v-model="chipForm.company"
-            :placeholder="t('Company')"
-            clear-input
-           :disabled="!isAdmin"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
+          <ion-row class="styled-row">
+            <ion-col size="5" class="cell">{{ t('Tank Name') }}</ion-col>
+            <ion-col size="7" class="cell">
+              <ion-item lines="none" class="input-item">
+                <ion-input
+                  v-model="tankForm.tankName"
+                  :placeholder="t('e.g. TK-101')"
+                  clear-input
+                  :disabled="!isAdmin"
+                ></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
 
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('project') }}</ion-col>
-      <ion-col size="6" class="cell">
-        <ProjectSelect
-          v-model="chipForm.project"
-          :options="projectOptions"
-          :placeholder="t('Select project')"
-          :disabled="!isAdmin"
-        />
-      </ion-col>
-    </ion-row>
+          <ion-row class="styled-row">
+            <ion-col size="5" class="cell">{{ t('Location/Area') }}</ion-col>
+            <ion-col size="7" class="cell">
+              <ProjectSelect
+                v-model="tankForm.location"
+                :options="locationOptions"
+                :placeholder="t('Select Area')"
+                :disabled="!isAdmin"
+              />
+            </ion-col>
+          </ion-row>
 
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('structure') }}</ion-col>
-      <ion-col size="6" class="cell">
-        <ion-item lines="none" class="input-item">
-          <ion-input
-            v-model="chipForm.structure"
-            :placeholder="t('Structure')"
-            clear-input
-           :disabled="!isAdmin"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
+          <ion-row class="styled-row">
+            <ion-col size="5" class="cell">{{ t('Stored Medium') }}</ion-col>
+            <ion-col size="7" class="cell">
+               <ion-item lines="none" class="input-item">
+                <ion-input
+                  v-model="tankForm.medium"
+                  :placeholder="t('e.g. Crude Oil / LNG')"
+                  clear-input
+                  :disabled="!isAdmin"
+                ></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
 
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('contractor') }}</ion-col>
-      <ion-col size="6" class="cell">
-        <ion-item lines="none" class="input-item">
-        <ion-input
-            v-model="chipForm.contractor"
-            :placeholder="t('Contractor')"
-            clear-input
-           :disabled="!isAdmin"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
+          <ion-row class="styled-row">
+            <ion-col size="5" class="cell">{{ t('Capacity (m³)') }}</ion-col>
+            <ion-col size="7" class="cell">
+              <ion-item lines="none" class="input-item">
+                <ion-input
+                  v-model="tankForm.capacity"
+                  type="number"
+                  :placeholder="t('Volume')"
+                  :disabled="!isAdmin"
+                ></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
 
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('supplier') }}</ion-col>
-      <ion-col size="6" class="cell">
-        <ion-item lines="none" class="input-item">
-        <ion-input
-            v-model="chipForm.supplier"
-            :placeholder="t('Supplier')"
-            clear-input
-           :disabled="!isAdmin"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
+          <ion-row class="styled-row">
+            <ion-col size="5" class="cell">{{ t('Material') }}</ion-col>
+            <ion-col size="7" class="cell">
+              <ion-item lines="none" class="input-item">
+              <ion-input
+                  v-model="tankForm.material"
+                  :placeholder="t('e.g. 304 Stainless Steel')"
+                  :disabled="!isAdmin"
+                ></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
 
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('preparedBy') }}</ion-col>
-      <ion-col size="6" class="cell">
-        <ion-item lines="none" class="input-item">
-          <ion-input
-            v-model="chipForm.preparedBy"
-            :placeholder="t('Info')"
-            clear-input
-           :disabled="!isAdmin"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
+          <ion-row class="styled-row">
+            <ion-col size="5" class="cell">{{ t('Manufacturer') }}</ion-col>
+            <ion-col size="7" class="cell">
+              <ion-item lines="none" class="input-item">
+              <ion-input
+                  v-model="tankForm.manufacturer"
+                  :placeholder="t('Factory Name')"
+                  :disabled="!isAdmin"
+                ></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
 
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('cubeSize') }}</ion-col>
-      <ion-col size="6" class="cell">
-        <ProjectSelect
-          v-model="chipForm.cubeSize"
-          :options="cubeOptions"
-          :placeholder="t('Select Cube Size')"
-          :disabled="!isAdmin"
-        />
-      </ion-col>
-    </ion-row>
+          <ion-row class="styled-row">
+            <ion-col size="5" class="cell">{{ t('Design Pressure') }}</ion-col>
+            <ion-col size="7" class="cell">
+              <ion-item lines="none" class="input-item">
+                <ion-input
+                  v-model="tankForm.designPressure"
+                  :placeholder="t('MPa')"
+                  :disabled="!isAdmin"
+                ></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
 
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('grade') }}</ion-col>
-      <ion-col size="6" class="cell">
-        <ion-item lines="none" class="input-item">
-        <ion-input
-            v-model="chipForm.grade"
-            :placeholder="t('Grade')"
-            clear-input
-            :disabled="!isAdmin"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
+          <ion-row class="styled-row">
+            <ion-col size="5" class="cell">{{ t('Design Temp') }}</ion-col>
+            <ion-col size="7" class="cell">
+              <ion-item lines="none" class="input-item">
+                <ion-input
+                  v-model="tankForm.designTemp"
+                  :placeholder="t('°C')"
+                  :disabled="!isAdmin"
+                ></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
 
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('cement') }}</ion-col>
-      <ion-col size="6" class="cell">
-        <ion-item lines="none" class="input-item">
-        <ion-input
-            v-model="chipForm.cement"
-            :placeholder="t('cement info')"
-            clear-input
-            :disabled="!isAdmin"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
+          <ion-row class="styled-row">
+            <ion-col size="5" class="cell">{{ t('Engineer') }}</ion-col>
+            <ion-col size="7" class="cell">
+              <ion-item lines="none" class="input-item">
+                <ion-input
+                  v-model="tankForm.engineer"
+                  :placeholder="t('Name')"
+                  :disabled="!isAdmin"
+                ></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
 
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('fineAggregate') }}</ion-col>
-      <ion-col size="6" class="cell">
-        <ion-item lines="none" class="input-item">
-        <ion-input
-            v-model="chipForm.fineAggregate"
-            :placeholder="t('fineAggregate')"
-            clear-input
-            :disabled="!isAdmin"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
+          <ion-row class="styled-row">
+            <ion-col size="5" class="cell">{{ t('RFID/NFC Tag') }}</ion-col>
+            <ion-col size="7" class="cell">
+              <ion-item lines="none" class="input-item">
+                <ion-input
+                  v-model="tankForm.tagId"
+                  :placeholder="t('Scan to fill')"
+                  readonly
+                  :disabled="!isAdmin"
+                ></ion-input>
+              </ion-item>
+            </ion-col>
+          </ion-row>
 
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('coarseAggregate') }}</ion-col>
-      <ion-col size="6" class="cell">
-        <ion-item lines="none" class="input-item">
-        <ion-input
-            v-model="chipForm.coarseAggregate"
-            :placeholder="t('coarseAggregate')"
-            clear-input
-            :disabled="!isAdmin"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
+          <ion-row class="styled-row">
+            <ion-col size="5" class="cell">{{ t('Health Status') }}</ion-col>
+            <ion-col size="7" class="cell">
+              <ProjectSelect
+                v-model="tankForm.status"
+                :options="statusOptions"
+                :placeholder="t('Select Status')"
+                :disabled="!isAdmin"
+              />
+            </ion-col>
+          </ion-row>
 
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('admixture') }}</ion-col>
-      <ion-col size="6" class="cell">
-        <ion-input
-            v-model="chipForm.admixture"
-            :placeholder="t('admixture')"
-            clear-input
-            :disabled="!isAdmin"
-          ></ion-input>
-        </ion-col>
-    </ion-row>
+          <ion-row class="styled-row">
+            <ion-col size="5" class="cell">{{ t('Install Date') }}</ion-col>
+            <ion-col size="7" class="cell">
+               <ion-item lines="none" class="input-item">
+                <ion-input
+                  type="date"
+                  v-model="tankForm.installDate"
+                  :disabled="!isAdmin"
+                ></ion-input>
+               </ion-item>
+            </ion-col>
+          </ion-row>
 
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('chipCode') }}</ion-col>
-      <ion-col size="6" class="cell">
-        <ion-item lines="none" class="input-item">
-        <ion-input
-            v-model="chipForm.chipCode"
-            :placeholder="t('chipcode')"
-            clear-input
-            :disabled="!isAdmin"
-          ></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
+           <ion-row class="styled-row">
+            <ion-col size="5" class="cell">{{ t('System Time') }}</ion-col>
+            <ion-col size="7" class="cell" style="color: #666;">{{ dateForm.date }}</ion-col>
+          </ion-row>
 
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('castingDate') }}</ion-col>
-      <ion-col size="6" class="cell">{{ dateForm.date }}</ion-col>
-    </ion-row>
+        </ion-grid>
 
-    <ion-row class="styled-row">
-      <ion-col size="6" class="cell">{{ t('testDays') }}
-      </ion-col>
-      <ion-col size="6" class="cell">
-        <ProjectSelect
-          v-model="chipForm.testDays"
-          :options="testDaysOptions"
-          :placeholder="t('selectTestDays')"
-          :disabled="!isAdmin"
-        />
-      </ion-col>
-    </ion-row>
-  </ion-grid>
-      <!-- 上传和保存按钮 -->
-      <ion-row class="ion-justify-content-between ion-margin-top">
-        <ion-col size="6">
-          <ion-button expand="block" color="secondary" v-if="userStore.role === 'Administrator'" @click="fetchChipFormByCode" >
-            <ion-icon slot="start" :icon="search" class="icon-table"></ion-icon>
-            {{ t('search') }}
-          </ion-button>
-        </ion-col>
-        <ion-col size="6">
-          <ion-button expand="block" color="tertiary" v-if="userStore.role === 'Administrator'" @click="uploadToCloud">
-            <ion-icon slot="start" :icon="logoSoundcloud" class="icon-table"></ion-icon>
-            {{ t('upload') }}
-          </ion-button>
-        </ion-col>
-      </ion-row>
+        <ion-row class="ion-justify-content-between ion-margin-top">
+          <ion-col size="6">
+            <ion-button expand="block" color="secondary" v-if="userStore.role === 'Administrator'" @click="fetchTankByCode">
+              <ion-icon slot="start" :icon="search" class="icon-table"></ion-icon>
+              {{ t('Search Tank') }}
+            </ion-button>
+          </ion-col>
+          <ion-col size="6">
+            <ion-button expand="block" color="tertiary" v-if="userStore.role === 'Administrator'" @click="uploadToCloud">
+              <ion-icon slot="start" :icon="cloudUploadOutline" class="icon-table"></ion-icon>
+              {{ t('Upload Info') }}
+            </ion-button>
+          </ion-col>
+        </ion-row>
       </div>
     </ion-content>
   </ion-page>
@@ -363,125 +238,92 @@
 
 <script setup lang="ts" >
 import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonButton,
-  IonIcon,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonInput,
-  actionSheetController
+  IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButton,
+  IonIcon, IonGrid, IonRow, IonCol, IonInput, actionSheetController,
+  IonModal, IonList, IonItem, IonLabel, IonButtons
 } from '@ionic/vue';
-import { radio,  refresh, logoSoundcloud, search, home, globe } from 'ionicons/icons';
-import {reactive, ref, computed, onMounted, watch } from 'vue';
+import { 
+  refresh, search, globe, cubeOutline, cloudUploadOutline 
+} from 'ionicons/icons';
+import { reactive, ref, computed, onMounted, watch } from 'vue';
 import { useToast } from '@/components/useToast'
 import ProjectSelect from '@/components/ProjectSelect.vue'
-import { useUserStore } from '@/store/user'  // ⚠️ 导入pinia存储个人全局信息
+import { useUserStore } from '@/store/user'
 import { useScanStore } from '@/store/scan';
 import axios from 'axios'
 import { useI18n } from 'vue-i18n'
-import { Nfc, NfcUtils } from '@capawesome-team/capacitor-nfc';
 import { Capacitor } from '@capacitor/core'
 
 const userStore = useUserStore()
 const scanStore = useScanStore();
-// 从数据库获取的选项数据
-const projectList = ref<string[]>([])
-const cubeSize = ref<string[]>([])
-const testDays = ref<string[]>([])
-const testDaysOptions = computed(() => testDays.value.map(item => ({
-  label: item,
-  value: item
-})))
-const cubeOptions = computed(() => cubeSize.value.map(item => ({
-  label: item,
-  value: item
-})))
-const projectOptions = computed(() => projectList.value.map(item => ({
-  label: item,
-  value: item
-})))
-
-// 获取 API 基础 URL
-const getBaseURL = () => {
-  const platform = Capacitor.getPlatform()
-  if (platform === 'android') {
-    return 'http://localhost:3001'  // ⚠️ 请根据后端启动日志中的实际IP修改此地址
-  } else {
-    // Web/桌面端使用 localhost
-    return 'http://localhost:3001'
-  }
-}
-
-// 从数据库加载选项数据
-const loadOptionsFromDatabase = async () => {
-  try {
-    const baseURL = getBaseURL()
-    const url = `${baseURL}/api/chipform/options/information`
-    const res = await axios.get<InformationOptions>(url)
-    
-    projectList.value = res.data.project || []
-    cubeSize.value = res.data.cubeSize || []
-    testDays.value = res.data.testDays || []
-  } catch (error: any) {
-    // 如果加载失败，使用默认值
-    projectList.value = [t('Loading Error. Please try again')]
-    cubeSize.value = [t('Loading Error. Please try again')]
-    testDays.value = [t('Loading Error. Please try again')]
-  }
-}
 const { showToast } = useToast()
+const { locale, t } = useI18n()
 const isAdmin = computed(() => userStore.role === 'Administrator')
 
-interface ChipForm {
-  company: string
-  project: string
-  structure: string
-  contractor: string
-  supplier: string
-  preparedBy: string
-  cubeSize: string
-  grade: string
-  cement: string
-  fineAggregate: string
-  coarseAggregate: string
-  admixture: string
-  chipCode: string
-  testDays: string
+// --- 1. 数据结构定义 (改为储液罐模型) ---
+interface TankForm {
+  tankName: string;      // 罐体编号/名称 (原 Company)
+  location: string;      // 区域 (原 Project)
+  medium: string;        // 存储介质 (原 Structure)
+  material: string;      // 材质 (原 Contractor)
+  manufacturer: string;  // 制造商 (原 Supplier)
+  engineer: string;      // 负责人 (原 PreparedBy)
+  capacity: string;      // 容量 (原 CubeSize)
+  designPressure: string;// 设计压力 (新)
+  designTemp: string;    // 设计温度 (新)
+  tagId: string;         // NFC ID (原 ChipCode)
+  status: string;        // 状态 (原 Grade/TestDays)
+  installDate: string;   // 安装日期
 }
 
-interface UploadResponse {
-  message: string
-  insertId: number
-}
-interface InformationOptions {
-  project: string[]
-  cubeSize: string[]
-  testDays: string[]
-}
-// 初始化表单数据
-const chipForm = reactive<ChipForm>({
-  company: '',
-  project: '',
-  structure: '',
-  contractor: '',
-  supplier: '',
-  preparedBy: '',
-  cubeSize: '',
-  grade: '',
-  cement: '',
-  fineAggregate: '',
-  coarseAggregate: '',
-  admixture: '',
-  chipCode: '',
-  testDays: ''
+const tankForm = reactive<TankForm>({
+  tankName: '',
+  location: '',
+  medium: '',
+  material: '',
+  manufacturer: '',
+  engineer: '',
+  capacity: '',
+  designPressure: '',
+  designTemp: '',
+  tagId: '',
+  status: '',
+  installDate: ''
 })
-const initchipForm = reactive<ChipForm>({ ...chipForm })
 
+// --- 2. 选项数据 (Mock) ---
+// 这里的变量名保留了你之前的架构风格，但内容换成了罐体相关
+const locationList = ref<string[]>([])
+const statusList = ref<string[]>([])
+
+// 模拟从数据库/API加载选项
+const locationOptions = computed(() => locationList.value.map(item => ({ label: item, value: item })))
+const statusOptions = computed(() => statusList.value.map(item => ({ label: item, value: item })))
+
+// --- 3. API 配置 ---
+const getBaseURL = () => {
+  const platform = Capacitor.getPlatform()
+  return platform === 'android' ? 'http://10.0.2.2:3001' : 'http://localhost:3001'
+}
+
+// 模拟加载选项 (实际开发请改为请求 /api/tank/options)
+const loadOptionsFromDatabase = async () => {
+  try {
+    // 暂时模拟数据，后期替换为真实 API 调用
+    // const res = await axios.get(`${getBaseURL()}/api/tank/options`)
+    // locationList.value = res.data.locations
+    
+    // Mock Data for Demo
+    locationList.value = ['Zone A (Raw Material)', 'Zone B (Processing)', 'Zone C (Waste)']
+    statusList.value = ['Normal Operation', 'Maintenance Required', 'Fault Detected', 'Offline']
+    
+  } catch (error) {
+    console.error(error)
+    locationList.value = ['Error Loading']
+  }
+}
+
+// --- 4. 逻辑处理 ---
 const isDesktop = ref(false)
 const isModalOpen = ref(false)
 
@@ -491,41 +333,36 @@ onMounted(() => {
   loadOptionsFromDatabase()
 })
 
-watch(
-  () => scanStore.result,
-  (newVal) => {
-    if (newVal) {
-      chipForm.chipCode = newVal
-    }
+// 监听扫描结果
+watch(() => scanStore.result, (newVal) => {
+  if (newVal) {
+    tankForm.tagId = newVal
+    fetchTankByCode() // 扫码后自动查询
   }
-)
-
-setInterval(() => {
-  dateForm.date = getCurrentTime()
-}, 30000) // 每分钟更新一次
-
-const dateForm = reactive({
-  date: getCurrentTime(),
 })
 
-const { locale, t } = useI18n()
+// 时间更新
+const dateForm = reactive({ date: getCurrentTime() })
+setInterval(() => { dateForm.date = getCurrentTime() }, 30000)
 
+function getCurrentTime() {
+  const now = new Date()
+  const Y = now.getFullYear()
+  const M = String(now.getMonth() + 1).padStart(2, '0')
+  const D = String(now.getDate()).padStart(2, '0')
+  const h = String(now.getHours()).padStart(2, '0')
+  const m = String(now.getMinutes()).padStart(2, '0')
+  return `${Y}-${M}-${D} ${h}:${m}`
+}
+
+// 语言切换
 async function openLangSheet() {
   const actionSheet = await actionSheetController.create({
-    header: '选择语言 | Select Language',
+    header: 'Language / 语言',
     buttons: [
-      {
-        text: 'English',
-        handler: () => { locale.value = 'en' }
-      },
-      {
-        text: '中文',
-        handler: () => { locale.value = 'zh' }
-      },
-      {
-        text: '取消',
-        role: 'cancel'
-      }
+      { text: 'English', handler: () => { locale.value = 'en' } },
+      { text: '中文', handler: () => { locale.value = 'zh' } },
+      { text: 'Cancel', role: 'cancel' }
     ]
   })
   await actionSheet.present()
@@ -535,300 +372,142 @@ function handleRefresh() {
   window.location.reload()
 }
 
+// --- 5. 核心业务逻辑 (查询与上传) ---
 
-// 工具函数：字节转 hex
-const bytesToHex = (bytes: number[] | Uint8Array) =>
-  Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')
-
-// NFC 扫描函数（支持读取自定义格式）
-const startNfcScan = async () => {
-  try {
-    await Nfc.removeAllListeners()
-
-    const available = await Nfc.isAvailable()
-    if (!available?.nfc) return showToast(t('This device does not support NFC'), 'warning')
-
-    const isEnabled = await Nfc.isEnabled()
-    if (!isEnabled) return showToast(t('Please enable NFC in system settings'), 'warning')
-
-    if (Capacitor.getPlatform() === 'android') {
-      const { nfc } = await Nfc.checkPermissions()
-      if (nfc !== 'granted') {
-        const res = await Nfc.requestPermissions()
-        if (res.nfc !== 'granted') return showToast(t('NFC permission denied'), 'danger')
-      }
-    }
-
-    showToast(t('Please bring the device close to the NFC tag'), 'primary')
-
-    const listener = await Nfc.addListener('nfcTagScanned', async (event: any) => {
-      const tag = event?.nfcTag ?? event?.tag
-      if (!tag) return showToast(t('Invalid tag detected'), 'danger')
-
-      chipForm.chipCode = tag?.id ? bytesToHex(tag.id) : ''
-
-      // ✅ 解析自定义 MIME 类型数据
-      if (Array.isArray(tag?.ndefMessage) && tag.ndefMessage.length > 0) {
-        try {
-          const record = tag.ndefMessage[0]
-
-          if ((record.tnf ?? record.typeNameFormat) === 0x02) { // MIME type
-            const text = new TextDecoder().decode(record.payload)
-            const data = JSON.parse(text)
-            Object.assign(chipForm, data)
-            showToast(t('Existing data read; form filled automatically'), 'success')
-          } else {
-            Object.assign(chipForm, { ...initchipForm, chipCode: chipForm.chipCode })
-            showToast(t('Tag content is not in the app format; form is empty'), 'warning')
-          }
-        } catch {
-          Object.assign(chipForm, { ...initchipForm, chipCode: chipForm.chipCode })
-          showToast(t('Parsing error; form is empty'), 'warning')
-        }
-      } else {
-        Object.assign(chipForm, { ...initchipForm, chipCode: chipForm.chipCode })
-      }
-
-      isModalOpen.value = true
-      await Nfc.stopScanSession()
-      await listener.remove()
-    })
-
-    await Nfc.startScanSession()
-  } catch (err) {
-    console.error(err)
-    showToast(t('NFC scan failed. Please check permissions or device settings'), 'danger')
-  }
-}
-
-// NFC 写入函数（写入 chipForm 到标签，并同步表格）
-const writeChipFormToTag = async () => {
-  try {
-    showToast(t('Please bring the device close to the NFC tag'), 'primary')
-
-    const utils = new NfcUtils()
-    const json = JSON.stringify(chipForm)
-    // ✅ 自定义 MIME 类型记录（使用通用 createNdefRecord 构造）
-    const encoder = new TextEncoder()
-    const { record } = utils.createNdefRecord({
-      tnf: 0x02, // MIME
-      type: Array.from(encoder.encode('application/vnd.myapp.chipform')),
-      id: [],
-      payload: Array.from(encoder.encode(json))
-    })
-
-    const listener = await Nfc.addListener('nfcTagScanned', async () => {
-      try {
-        await Nfc.write({ message: { records: [record] } })
-        showToast(t('Write successful'), 'success')
-
-        // chipForm 已经是 reactive，表格会自动同步显示
-      } catch (e) {
-        console.error(e)
-        showToast(t('Write failed'), 'danger')
-      } finally {
-        await listener.remove()
-        await Nfc.stopScanSession()
-      }
-    })
-
-    await Nfc.startScanSession()
-  } catch (err) {
-    console.error(err)
-    showToast(t('NFC write failed. Please check permissions or device settings'), 'danger')
-  }
-}
-
-// 提交表单（只是关闭弹窗，同时 chipForm 已 reactive）
-const submitNFC = () => {
-  console.log('Submit data:', chipForm)
-  showToast(t('Form submitted'), 'success')
-  isModalOpen.value = false
-}
-
-
-function getCurrentTime() {
-  const now = new Date()
-  // 格式化为 YYYY-MM-DD HH:mm
-  const Y = now.getFullYear()
-  const M = String(now.getMonth() + 1).padStart(2, '0')
-  const D = String(now.getDate()).padStart(2, '0')
-  const h = String(now.getHours()).padStart(2, '0')
-  const m = String(now.getMinutes()).padStart(2, '0')
-  return `${Y}-${M}-${D} ${h}:${m}`
-}
-
-const fetchChipFormByCode = async () => {
-  if (!chipForm.chipCode.trim()) {
-    showToast(t('Please enter the test block number'), 'warning')
+// 查询罐体信息
+const fetchTankByCode = async () => {
+  if (!tankForm.tagId.trim()) {
+    showToast(t('Please scan or enter Tag ID'), 'warning')
     return
   }
 
   try {
-    const res = await axios.get<ChipForm>(`${getBaseURL()}/api/chipform/${chipForm.chipCode}`)
-    Object.assign(chipForm, res.data)
-    showToast(t('Query Successful, Data has been loaded', 'success'),'success')
-    console.log("Query result：", res.data)
+    // ⚠️ 注意：后端接口路径可能需要调整，这里假设后端有一个 /api/tank/:id 的接口
+    // 如果还没改后端，暂时用原来的 /api/chipform 但字段对应可能错乱，建议同步改后端
+    const res = await axios.get(`${getBaseURL()}/api/tank/${tankForm.tagId}`)
+    
+    // 合并数据
+    Object.assign(tankForm, res.data)
+    showToast(t('Tank Data Loaded'), 'success')
   } catch (err: any) {
     if (err.response?.status === 404) {
-      showToast(t('No corresponding test block number found'), 'danger')
+      showToast(t('Tank not found'), 'danger')
     } else {
-      console.error("Query failed：", err)
-      showToast(t('Server exception or network error'), 'danger')
+      console.error(err)
+      // 如果是演示，可以伪造一条数据填充
+      // Object.assign(tankForm, { tankName: 'TK-Demo', location: 'Zone A' })
+      showToast(t('Network error'), 'danger')
     }
   }
-}
-//校验函数
-const hasEmptyField = (obj: Record<string, any>): boolean => {
-  return Object.values(obj).some(value => value === '' || value === null || value === undefined)
 }
 
 // 上传到云端
 const uploadToCloud = async () => {
-  if (hasEmptyField(chipForm)) {
-    showToast('❌ ' + t('Please fill in all fields before uploading'), 'danger')
+  // 简单校验
+  if (!tankForm.tankName || !tankForm.location) {
+    showToast('❌ ' + t('Basic info required'), 'warning')
     return
   }
+
   try {
-    const jsonString = JSON.stringify(chipForm) // 你已有
-    console.log("🌐 Preparing to upload to the cloud：", jsonString)
-
-    const res = await axios.post<UploadResponse>(`${getBaseURL()}/api/chipform`, chipForm)
-
-    if (res.status === 201) {
-  showToast('✅ ' + t('Upload successful'), 'success')
-  console.log("✅ Successfully inserted into the database. ID:", res.data.insertId)
-} else {
-  showToast('❌ ' + t('Upload failed'), 'danger')
-  console.error("⚠️ Insert failed:", res.data)
-}
-} catch (err) {
-  console.error("❌ Network or server error:", err)
-  showToast('❌ ' + t('Upload failed. Please check the network or server'), 'danger')
+    const res = await axios.post(`${getBaseURL()}/api/tank`, tankForm)
+    if (res.status === 201 || res.status === 200) {
+      showToast('✅ ' + t('Upload successful'), 'success')
+    } else {
+      showToast('❌ ' + t('Upload failed'), 'danger')
+    }
+  } catch (err) {
+    console.error(err)
+    showToast('❌ ' + t('Upload failed'), 'danger')
   }
+}
+
+// NFC 模拟提交
+const submitNFC = () => {
+  showToast('Synced with NFC Tag', 'success')
+  isModalOpen.value = false
 }
 </script>
 
 <style scoped>
+/* 保持原有样式不变，仅替换了 icon */
 .title-content {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 100%; /* 确保高度继承，便于垂直居中 */
+  height: 100%;
 }
+.title-icon { font-size: 20px; color: #000; }
 
-.title-icon {
-  font-size: 20px;
-  color: #000;
-}
+/* 你的渐变背景 */
 .background-gradient {
-    height: 100%;
     --background: 
       linear-gradient(to bottom, transparent, #fff 240px),
       radial-gradient(20% 150px at 70% 230px, rgba(255, 255, 255, 0.5), transparent),
-      radial-gradient(40% 180px at 80% 50px, rgba(249, 236, 224, 0.35), transparent),
       radial-gradient(50% 300px at 90% 100px, rgba(255, 255, 255, 0.76), transparent),
       radial-gradient(20% 150px at 0px 0px, rgba(96, 205, 235, 0.54), transparent),
-      radial-gradient(30% 200px at 100px 50px, rgba(225, 160, 160, 0.45), transparent),
       #f4f4f4 !important;
-        /* 设置高度 */
-  min-height: 60px; /* 默认是56px，可改为64或72 */
-  height: 64px;
-  padding-top: 18px;  /* 可选，避免内容挤压 */
   }
   
-.tab1-modal {
-  background: rgba(0, 0, 0, 0.1)
+  .page-bg {
+    --background: #f6f7f9;
+  }
+  
+  .title-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .title-icon {
+    font-size: 20px;
+    color: #000;
+  }
+  
+  /* 顶部徽标 */
+  .badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #eb445a;
+    color: white;
+    font-size: 10px;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+.home-title {
+  display: flex; justify-content: center; align-items: center;
+  font-size: 20px; font-weight: bold; color: #000; text-align: center;
 }
 
-.ion-margin-top {
-  margin-top: 0px;
-}
-.icon-table{
-  font-size: 20px;
+/* 表格样式 */
+.table-bfc {
+  margin-top: 0px; display: flow-root; padding: 10px;
+  border-radius: 8px; background-color: #ffffff;
 }
 .styled-grid {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #fff;
+  border: 1px solid #ddd; border-radius: 8px; background: #fff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
-
-.styled-row {
-  border-bottom: 1px solid #f0f0f0;
-  border-radius: 8px;
-}
-
-.styled-row:last-child {
-  border-bottom: none;
-}
-
-.header-row {
-  background: #f8f8f8;
-}
-
-.cell {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  font-size: 14px;
-}
+.styled-row { border-bottom: 1px solid #f0f0f0; }
+.styled-row:last-child { border-bottom: none; }
+.header-row { background: #f8f8f8; }
+.cell { display: flex; align-items: center; padding: 10px; font-size: 14px; }
 
 .input-item {
-  --background: transparent;
-  --padding-start: 0;
-  --padding-end: 0;
-  --inner-padding-start: 0;
-  --inner-padding-end: 0;
-  --background: transparent;
-  margin-left: 0;
-  width: 100%;
+  --background: transparent; --padding-start: 0; --padding-end: 0;
+  --inner-padding-start: 0; --inner-padding-end: 0;
+  margin-left: 0; width: 100%;
 }
-.center-table{
-  justify-content: left;
-  height: 100%;
-}
-.home-title{
-  display: flex;
-  justify-content: center; /* 水平居中 */
-  align-items: center;     /* 垂直居中 */
-  font-size: 20px;
-  font-weight: bold;
-  color: #000000; /* 你想要的颜色 */
-  text-align: center;
-}
-.table-bfc{
-  margin-top: 0px;
-  display: flow-root; 
-  padding: 10px;
-  border-radius: 8px;
-  background-color: #ffffff;
-}
-.nfc-hint-bfc {
-  display: flow-root; /* 触发 BFC，防止外边距塌陷等问题 */
-  margin-top: 10px;
-  margin-left: 5px;
-  margin-right: 5px;
-  text-align: center;
-  padding: 16px;
-  background-color: #f1f1f1;
-  border-radius: 8px;
-  cursor: pointer; /* ⬅️ 鼠标悬停时为指针 */
-}
-
-.nfc-icon {
-  font-size: 48px;
-  color: #707070;
-  margin-bottom: 8px;
-}
-
-.nfc-text {
-  font-size: 16px;
-  color: #333;
-}
-
-.ion-padding{
-  padding-bottom: 0px;
-}
+.icon-table { font-size: 20px; }
+.ion-padding { padding-bottom: 0px; }
 </style>

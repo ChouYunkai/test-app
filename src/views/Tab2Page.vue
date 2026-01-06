@@ -14,7 +14,6 @@
     </ion-header>
 
     <ion-content :fullscreen="true" class="ion-padding page-bg">
-      <!-- 个人信息卡片 -->
       <ion-card class="profile-card" v-if="userStore.loggedIn">
         <ion-card-content class="profile-content">
           <ion-avatar class="profile-avatar">
@@ -25,12 +24,10 @@
         </ion-card-content>
       </ion-card>
 
-      <!-- 未登录提示 -->
       <div v-else class="login-prompt">
-        <p>{{ t('Please login to view account information') }}</p>
+        <p>{{ t('Please login to view system status') }}</p>
       </div>
 
-      <!-- 账号信息卡片 -->
       <ion-card class="info-card" v-if="userStore.loggedIn">
         <ion-list lines="inset">
           <ion-item>
@@ -51,7 +48,34 @@
         </ion-list>
       </ion-card>
 
-      <!-- 操作按钮卡片 -->
+      <ion-card class="action-card" v-if="userStore.loggedIn">
+        <ion-item lines="full" class="card-header-item">
+          <ion-icon :icon="cubeOutline" slot="start" color="dark" />
+          <ion-label>
+            <h2>{{ t('Fault Diagnosis System') }}</h2>
+            <p style="font-size: 12px; color: #888;">{{ t('Lifecycle Management Core') }}</p>
+          </ion-label>
+        </ion-item>
+        
+        <ion-list lines="inset">
+          <ion-item button @click="navigateTo('monitor')">
+            <ion-icon slot="start" :icon="pulseOutline" color="success" />
+            <ion-label>{{ t('Real-time Monitoring') }}</ion-label>
+            <ion-note slot="end" color="medium" style="font-size: 12px;">Running</ion-note>
+          </ion-item>
+          
+          <ion-item button @click="navigateTo('diagnosis')">
+            <ion-icon slot="start" :icon="analyticsOutline" color="warning" />
+            <ion-label>{{ t('Fault Diagnosis System') }}</ion-label>
+          </ion-item>
+
+          <ion-item button @click="navigateTo('history')" lines="none">
+            <ion-icon slot="start" :icon="documentTextOutline" color="secondary" />
+            <ion-label>{{ t('Fault History Logs') }}</ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card>
+
       <ion-card class="action-card">
         <ion-list lines="inset">
           <ion-item button v-if="userStore.loggedIn" @click="managePermissions">
@@ -66,7 +90,6 @@
             <ion-icon slot="start" :icon="logInOutline" color="primary" />
             <ion-label color="primary">{{ t('Login') }}</ion-label>
           </ion-item>
-          <!-- ✅ “创建账号”按钮仅在未登录时显示 -->
           <ion-item button v-if="!userStore.loggedIn" @click="openCreateAccountModal" lines="none">
             <ion-icon slot="start" :icon="personAddOutline" color="primary" />
             <ion-label color="primary">{{ t('Create Account') }}</ion-label>
@@ -85,10 +108,9 @@
             <ion-label>{{ t('Developer') }}</ion-label>
             <ion-note slot="end">1207099632@qq.com</ion-note>
           </ion-item>
-        </ion-list>  
+        </ion-list>   
       </ion-card>
 
-      <!-- 登录弹窗 -->
       <ion-modal :is-open="showLoginModal" @did-dismiss="closeLoginModal">
         <ion-header>
           <ion-toolbar>
@@ -120,7 +142,6 @@
         </ion-content>
       </ion-modal>
 
-      <!-- ✅ 创建账号模态框（已新增 name / permission_level / organization） -->
       <ion-modal :is-open="showCreateAccountModal" @did-dismiss="closeCreateAccountModal">
         <ion-header>
           <ion-toolbar>
@@ -187,6 +208,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton,
@@ -197,7 +219,9 @@ import {
 import {
   personCircle, shieldCheckmark, business, settingsOutline,
   keyOutline as keyIcon, logInOutline, logOutOutline,
-  personAddOutline, mail
+  personAddOutline, mail,
+  // ✅ 新增图标导入
+  pulseOutline, analyticsOutline, documentTextOutline, cubeOutline
 } from 'ionicons/icons'
 
 import { useUserStore } from '@/store/user'
@@ -205,15 +229,17 @@ import { useToast } from '@/components/useToast'
 
 const { showToast } = useToast()
 const { t } = useI18n()
+const router = useRouter() // 用于页面跳转
+
 const showLoginModal = ref(false)
 const showCreateAccountModal = ref(false)
 const loading = ref(false)
+
 const loginForm = reactive({
   email: '',
   password: ''
 })
 
-// ✅ 扩展后的创建账号表单
 const createAccountForm = reactive({
   name: '',
   email: '',
@@ -225,6 +251,7 @@ const createAccountForm = reactive({
 
 const userStore = useUserStore()
 
+// 1. 模态框控制
 function openLoginModal() {
   showLoginModal.value = true
 }
@@ -233,6 +260,25 @@ function openCreateAccountModal() {
   showCreateAccountModal.value = true
 }
 
+function closeLoginModal() {
+  showLoginModal.value = false
+  loginForm.email = ''
+  loginForm.password = ''
+  loading.value = false
+}
+
+function closeCreateAccountModal() {
+  showCreateAccountModal.value = false
+  createAccountForm.name = ''
+  createAccountForm.email = ''
+  createAccountForm.password = ''
+  createAccountForm.role = ''
+  createAccountForm.permission_level = ''
+  createAccountForm.organization = ''
+  loading.value = false
+}
+
+// 2. 登录逻辑
 async function submitLogin() {
   if (!loginForm.email || !loginForm.password) {
     showToast(t('Please enter your email and password'), 'warning')
@@ -266,7 +312,6 @@ async function submitLogin() {
       organization: data.organization
     })
     showToast(`${t('welcome back')}, ${userStore.name}`, 'success')
-    //关闭模态框
     closeLoginModal()
 
   } catch (error) {
@@ -277,6 +322,7 @@ async function submitLogin() {
   }
 }
 
+// 3. 创建账号逻辑
 async function submitCreateAccount() {
   if (
     !createAccountForm.name ||
@@ -291,10 +337,9 @@ async function submitCreateAccount() {
   }
 
   if (createAccountForm.role.trim() === 'Administrator') {
-  showToast(t('Administrator role is not allowed'), 'danger')
-  return
-}
-
+    showToast(t('Administrator role is not allowed'), 'danger')
+    return
+  }
 
   loading.value = true
   try {
@@ -318,7 +363,7 @@ async function submitCreateAccount() {
       return
     }
 
-    const data = await response.json()
+    await response.json()
     showToast(`${t('Account created successfully')}! ${t('Please login to continue')}`, 'success')
     closeCreateAccountModal()
   } catch (error) {
@@ -329,24 +374,7 @@ async function submitCreateAccount() {
   }
 }
 
-function closeLoginModal() {
-  showLoginModal.value = false
-  loginForm.email = ''
-  loginForm.password = ''
-  loading.value = false
-}
-
-function closeCreateAccountModal() {
-  showCreateAccountModal.value = false
-  createAccountForm.name = ''
-  createAccountForm.email = ''
-  createAccountForm.password = ''
-  createAccountForm.role = ''
-  createAccountForm.permission_level = ''
-  createAccountForm.organization = ''
-  loading.value = false
-}
-
+// 4. 通用操作
 function logout() {
   userStore.logout()
 }
@@ -360,6 +388,30 @@ function changePassword() {
   showToast(t('Please connect manager'), 'danger')
   console.log('Navigate to change password')
 }
+
+// ✅ 5. 核心业务跳转逻辑
+function navigateTo(feature: string) {
+  if (!userStore.loggedIn) {
+    showToast(t('Please login first'), 'warning')
+    return
+  }
+  
+  // 模拟跳转，后期在这里替换为 router.push('/tabs/monitor') 等
+  switch(feature) {
+    case 'monitor':
+      showToast('正在进入实时监测模块...', 'primary')
+      router.push('/tabs/monitor') 
+      break
+    case 'diagnosis':
+      showToast('正在初始化AI诊断模型...', 'warning')
+      router.push('/tabs/diagnosis')
+      break
+    case 'history':
+      showToast('加载故障历史记录...', 'success')
+      router.push('/tabs/history')
+      break
+  }
+}
 </script>
 
 <style scoped>
@@ -370,23 +422,55 @@ function changePassword() {
   gap: 6px;
   height: 100%;
 }
+.title-wrapper {
+    display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; color: #333;
+  }
 .title-icon {
   font-size: 20px;
   color: #000;
 }
 .background-gradient {
-  --background: 
-    linear-gradient(to bottom, transparent, #fff 240px),
-    radial-gradient(20% 150px at 70% 230px, rgba(255, 255, 255, 0.5), transparent),
-    radial-gradient(40% 180px at 80% 50px, rgba(249, 236, 224, 0.35), transparent),
-    radial-gradient(50% 300px at 90% 100px, rgba(255, 255, 255, 0.76), transparent),
-    radial-gradient(20% 150px at 0px 0px, rgba(96, 205, 235, 0.54), transparent),
-    radial-gradient(30% 200px at 100px 50px, rgba(225, 160, 160, 0.45), transparent),
-    #f4f4f4 !important;
-    min-height: 60px; /* 默认是56px，可改为64或72 */
-    height: 64px;
-    padding-top: 18px;  /* 可选，避免内容挤压 */
-}
+    --background: 
+      linear-gradient(to bottom, transparent, #fff 240px),
+      radial-gradient(20% 150px at 70% 230px, rgba(255, 255, 255, 0.5), transparent),
+      radial-gradient(50% 300px at 90% 100px, rgba(255, 255, 255, 0.76), transparent),
+      radial-gradient(20% 150px at 0px 0px, rgba(96, 205, 235, 0.54), transparent),
+      #f4f4f4 !important;
+  }
+  
+  .page-bg {
+    --background: #f6f7f9;
+  }
+  
+  .title-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .title-icon {
+    font-size: 20px;
+    color: #000;
+  }
+  
+  /* 顶部徽标 */
+  .badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #eb445a;
+    color: white;
+    font-size: 10px;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 .page-bg {
   --background: #f6f7f9;
 }
@@ -428,5 +512,13 @@ function changePassword() {
   text-align: center;
   color: #888;
   margin-bottom: 20px;
+}
+
+/* ✅ 新增：卡片标题样式 */
+.card-header-item {
+  --min-height: 50px;
+  --padding-start: 16px;
+  font-weight: 600;
+  border-bottom: 1px solid #f0f0f0;
 }
 </style>

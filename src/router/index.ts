@@ -28,6 +28,18 @@ const routes: RouteRecordRaw[] = [
         path: 'tab3',
         component: () => import('@/views/Tab3Page.vue')
       },
+      {
+        path: 'monitor',
+        component: () => import('@/views/MonitorPage.vue')
+      },
+      {
+        path: 'diagnosis',
+        component: () => import('@/views/DiagnosisPage.vue')
+      },
+      {
+        path: 'history',
+        component: () => import('@/views/HistoryPage.vue')
+      },
     ]
   }
 ];
