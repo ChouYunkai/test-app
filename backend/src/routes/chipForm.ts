@@ -53,21 +53,21 @@ router.post('/add', async (req, res) => {
 
     const params = [
       data.company,
-      data.project, 
-      data.structure, 
-      data.contractor, 
-      data.supplier, 
+      data.project,
+      data.structure,
+      data.contractor,
+      data.supplier,
       data.prepared_by, // Web前端是下划线，数据库也是下划线，直接存！
-      data.cube_size, 
+      data.cube_size,
       data.grade,
-      data.cement, 
+      data.cement,
       data.fine_aggregate, // 修复了之前的 sandType
       data.coarse_aggregate, // 修复了之前的 gravelType
-      data.admixture, 
-      data.chip_code, 
+      data.admixture,
+      data.chip_code,
       data.test_days // 修复了之前的 curingPeriod
     ];
-     
+
 
     await pool.query(sql, params);
     res.json({ message: '新增成功' });
@@ -100,18 +100,18 @@ router.post('/update', async (req, res) => {
 
     const params = [
       data.company,
-      data.project, 
-      data.structure, 
-      data.contractor, 
-      data.supplier, 
+      data.project,
+      data.structure,
+      data.contractor,
+      data.supplier,
       data.prepared_by,
-      data.cube_size, 
-      data.grade, 
-      data.cement, 
-      data.fine_aggregate, 
+      data.cube_size,
+      data.grade,
+      data.cement,
+      data.fine_aggregate,
       data.coarse_aggregate,
-      data.admixture, 
-      data.chip_code, 
+      data.admixture,
+      data.chip_code,
       data.test_days,
       data.id
     ];
@@ -163,7 +163,8 @@ router.post('/', async (req, res) => {
     res.status(500).json({ message: '插入失败' });
   }
 });
-// 获取选项信息接口（从 information 表读取）
+// 获取选项信息接口（从 information 表读取
+// 对应前端 API: getOptionsInfo() -> GET /api/chipform/options/information
 router.get('/options/information', async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -184,12 +185,12 @@ router.get('/options/information', async (req, res) => {
       if (row.project && String(row.project).trim() !== '') {
         projectSet.add(String(row.project).trim());
       }
-      
+
       const cubeSizeValue = row['cube_size'] || row['cube_size'] || row.cubeSize;
       if (cubeSizeValue && String(cubeSizeValue).trim() !== '') {
         cubeSizeSet.add(String(cubeSizeValue).trim());
       }
-      
+
       const testDaysValue = row['test_Days'] || row['test_days'] || row.testDays || row['testDays'] || row['test_days'];
       if (testDaysValue && String(testDaysValue).trim() !== '') {
         testDaysSet.add(String(testDaysValue).trim());
@@ -207,7 +208,7 @@ router.get('/options/information', async (req, res) => {
         const [rows] = await pool.query(
           `SELECT project, cube_size, test_days FROM information WHERE id IS NOT NULL`
         );
-        
+
         const result = {
           project: [] as string[],
           cubeSize: [] as string[],
@@ -249,8 +250,8 @@ router.get('/options/information', async (req, res) => {
 
 // 按 chipCode 查询
 router.get('/:chipCode', async (req, res) => {
-    const { chipCode } = req.params;
-    const sql = `
+  const { chipCode } = req.params;
+  const sql = `
     SELECT
       id, 
       company, 
@@ -303,19 +304,18 @@ router.post('/login', async (req, res) => {
         email VARCHAR(100) UNIQUE NOT NULL,
         password VARCHAR(100) NOT NULL,
         role VARCHAR(50) DEFAULT 'user',
-        permission_level VARCHAR(50) DEFAULT 'normal',
         organization VARCHAR(100) DEFAULT 'Default Organization',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
     await pool.query(`
-      INSERT IGNORE INTO users (name, email, password, role, permission_level, organization) 
+      INSERT IGNORE INTO users (name, email, password, role, organization) 
       VALUES ('测试用户', 'test@example.com', '123456', 'admin', 'high', '测试公司')
     `);
 
     const [rows] = await pool.query(
-      `SELECT name, email, role, permission_level, organization 
+      `SELECT name, email, role, organization 
        FROM users 
        WHERE email = ? AND password = ?`,
       [email, password]
@@ -337,7 +337,7 @@ router.post('/login', async (req, res) => {
 
 // ✅ 新增创建用户接口（支持6个字段）
 router.post('/create-account', async (req, res) => {
-  const { name, email, password, role, permission_level, organization } = req.body;
+  const { name, email, password, role, organization } = req.body;
 
   console.log('📩 收到创建用户请求，请求数据:', req.body);
 
@@ -353,7 +353,6 @@ router.post('/create-account', async (req, res) => {
         email VARCHAR(100) UNIQUE NOT NULL,
         password VARCHAR(100) NOT NULL,
         role VARCHAR(50) DEFAULT 'User',
-        permission_level VARCHAR(50) DEFAULT 'normal',
         organization VARCHAR(100) DEFAULT 'Default Organization',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
@@ -365,8 +364,8 @@ router.post('/create-account', async (req, res) => {
     }
 
     const [result] = await pool.query(
-      'INSERT INTO users (name, email, password, role, permission_level, organization) VALUES (?, ?, ?, ?, ?, ?)',
-      [name || '', email, password, role, permission_level || 'normal', organization || 'Default Organization']
+      'INSERT INTO users (name, email, password, role,  organization) VALUES (?, ?, ?, ?, ?, ?)',
+      [name || '', email, password, role, organization || 'Default Organization']
     );
 
     console.log('✅ 用户创建成功:', result);
@@ -375,6 +374,89 @@ router.post('/create-account', async (req, res) => {
   } catch (error: any) {
     console.error('❌ 创建用户失败:', error.message || error);
     return res.status(500).json({ message: '服务器错误，请稍后重试', error: error.message });
+  }
+});
+// 新增打印功能
+
+// ==========================================
+// [新增] 保存/更新测试数据列表 (子表数据)
+// 作用：前端在录入完中间那个表格后，调用此接口保存
+// ==========================================
+router.post('/save-items', async (req, res) => {
+  // 注意：实际项目中建议使用事务(connection.beginTransaction)，这里为了保持和你原有风格一致，简化处理
+  try {
+    const { main_id, items } = req.body; // main_id 是 chip_form 的 ID
+
+    if (!main_id) {
+      return res.status(400).json({ message: '缺少主表 ID (main_id)' });
+    }
+
+    // 策略：先删除该 ID 下的所有旧数据，再插入新数据 (最简单的“全量更新”逻辑)
+    // 这样用户修改或删除了某一行，这里能自动同步
+    await pool.query('DELETE FROM chip_test_data WHERE main_id = ?', [main_id]);
+
+    if (items && items.length > 0) {
+      const sql = `INSERT INTO chip_test_data 
+        (main_id, cust_ref, date_cast, date_test, age_days, length_mm, width_mm, height_mm, mass_kg, density, load_kn, strength, mode_failure) 
+        VALUES ?`;
+
+      // 转换数据格式为 MySQL 批量插入所需的二维数组
+      const values = items.map((item: any) => [
+        main_id,
+        item.cust_ref || '',
+        item.date_cast || '',
+        item.date_test || '',
+        item.age_days || 0,
+        item.length_mm || 0,
+        item.width_mm || 0,
+        item.height_mm || 0,
+        item.mass_kg || 0,
+        item.density || 0,
+        item.load_kn || 0,
+        item.strength || 0,
+        item.mode_failure || 0
+      ]);
+
+      await pool.query(sql, [values]);
+    }
+
+    res.json({ message: '测试数据保存成功' });
+  } catch (error: any) {
+    console.error("❌ 保存测试数据失败:", error);
+    res.status(500).json({ message: '保存失败', error: error.message });
+  }
+});
+
+// ==========================================
+// [新增] 获取打印详情 (主表 + 子表)
+// 作用：打印组件调用此接口，获取生成 PDF 所需的所有数据
+// ==========================================
+router.get('/print-detail/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // 1. 查主表信息 (chip_form) -> 作为报告头部
+    const [mainRows] = await pool.query<RowDataPacket[]>('SELECT * FROM chip_form WHERE id = ?', [id]);
+    if (mainRows.length === 0) {
+      return res.status(404).json({ message: '未找到该记录' });
+    }
+    const mainInfo = mainRows[0];
+
+    // 2. 查子表列表 (chip_test_data) -> 作为报告中间的表格
+    const [itemRows] = await pool.query<RowDataPacket[]>('SELECT * FROM chip_test_data WHERE main_id = ? ORDER BY id ASC', [id]);
+
+    // 3. 拼装数据返回给前端
+    const result = {
+      // 展开主表字段 (company, project, contractor...)
+      ...mainInfo,
+      // 放入列表数据
+      items: itemRows
+    };
+
+    res.json(result);
+  } catch (error) {
+    console.error("❌ 获取打印详情失败:", error);
+    res.status(500).json({ message: '获取详情失败' });
   }
 });
 

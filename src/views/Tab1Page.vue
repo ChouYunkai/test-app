@@ -344,7 +344,7 @@
       <!-- 上传和保存按钮 -->
       <ion-row class="ion-justify-content-between ion-margin-top">
         <ion-col size="6">
-          <ion-button expand="block" color="secondary" v-if="userStore.role === 'Administrator'" @click="fetchChipFormByCode" >
+          <ion-button expand="block" color="secondary"  @click="fetchChipFormByCode" >
             <ion-icon slot="start" :icon="search" class="icon-table"></ion-icon>
             {{ t('search') }}
           </ion-button>

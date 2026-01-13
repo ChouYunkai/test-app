@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
   try {
     // 按 ID 正序排列 (1, 2, 3...)
     const sql = `
-      SELECT id, name, email, role, permission_level, organization, created_at 
+      SELECT id, name, email, role, organization, created_at 
       FROM users 
       ORDER BY id ASC
     `;
@@ -27,7 +27,7 @@ router.post('/search', async (req, res) => {
     const { name, email } = req.body;
 
     // 基础 SQL (注意：这里也不要查密码字段)
-    let sql = 'SELECT id, name, email, role, permission_level, organization, created_at FROM users WHERE 1=1';
+    let sql = 'SELECT id, name, email, role, organization, created_at FROM users WHERE 1=1';
     const params = [];
 
     // 条件1：姓名模糊查询
@@ -59,16 +59,15 @@ router.post('/add', async (req, res) => {
     console.log("收到新增用户请求:", data);
 
     const sql = `
-      INSERT INTO users (name, email, password, role, permission_level, organization) 
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO users (name, email, password, role, organization) 
+      VALUES (?, ?, ?, ?, ?)
     `;
-    
+
     const params = [
-      data.name, 
-      data.email, 
+      data.name,
+      data.email,
       data.password || '123456', // 如果没填密码，默认给 123456
-      data.role || 'User', 
-      data.permission_level || 'normal',
+      data.role || 'User',
       data.organization || ''
     ];
 
@@ -92,15 +91,14 @@ router.post('/update', async (req, res) => {
     // 修改时通常不改密码，除非有专门的重置密码接口
     const sql = `
       UPDATE users 
-      SET name=?, email=?, role=?, permission_level=?, organization=? 
+      SET name=?, email=?, role=?, organization=? 
       WHERE id=?
     `;
-    
+
     const params = [
-      data.name, 
-      data.email, 
-      data.role, 
-      data.permission_level, 
+      data.name,
+      data.email,
+      data.role,
       data.organization,
       data.id
     ];

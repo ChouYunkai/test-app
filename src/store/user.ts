@@ -15,14 +15,12 @@ export const useUserStore = defineStore('user', {
       name: string
       email: string
       role: string
-      permissionLevel: string
       organization: string
     }) {
       this.loggedIn = true
       this.name = userData.name
       this.email = userData.email
       this.role = userData.role
-      this.permissionLevel = userData.permissionLevel
       this.organization = userData.organization
     },
     logout() {

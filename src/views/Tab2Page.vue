@@ -38,11 +38,6 @@
             <ion-label>{{ t('Role') }}</ion-label>
             <ion-note slot="end">{{ userStore.role }}</ion-note>
           </ion-item>
-          <ion-item>
-            <ion-icon :icon="shieldCheckmark" slot="start" color="secondary" />
-            <ion-label>{{ t('Permission Level') }}</ion-label>
-            <ion-note slot="end">{{ userStore.permissionLevel }}</ion-note>
-          </ion-item>
           <ion-item lines="none">
             <ion-icon :icon="business" slot="start" color="tertiary" />
             <ion-label>{{ t('Organization') }}</ion-label>
@@ -153,20 +148,22 @@
               :placeholder="t('Password')" 
               autocomplete="new-password" />
           </ion-item>
-          <ion-item>
-            <ion-input 
-              v-model="createAccountForm.role" 
-              type="text" 
-              :placeholder="t('Role')" 
-              autocomplete="off" />
-          </ion-item>
-          <ion-item>
-            <ion-input 
-              v-model="createAccountForm.permission_level" 
-              type="text" 
-              :placeholder="t('Permission Level')" 
-              autocomplete="off" />
-          </ion-item>
+<ion-item>
+  <ion-select 
+    v-model="createAccountForm.role" 
+    :placeholder="t('Role')"
+    interface="action-sheet"
+    :cancel-text="t('Cancel')"
+    >
+    <ion-select-option 
+      v-for="option in roleOptions" 
+      :key="option.value" 
+      :value="option.value">
+      {{ option.label }}
+    </ion-select-option>
+  </ion-select>
+</ion-item>
+
           <ion-item>
             <ion-input 
               v-model="createAccountForm.organization" 
@@ -185,17 +182,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import {
   IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton,
   IonIcon, IonAvatar, IonItem, IonLabel, IonInput, IonNote, IonList, IonCard,
-  IonCardContent, IonModal
+  IonCardContent, IonModal, IonSelect, IonSelectOption
 } from '@ionic/vue'
 
 import {
-  personCircle, shieldCheckmark, business, settingsOutline,
+  personCircle, business, settingsOutline,
   keyOutline as keyIcon, logInOutline, logOutOutline,
   personAddOutline, mail
 } from 'ionicons/icons'
@@ -212,17 +209,20 @@ const loginForm = reactive({
   email: '',
   password: ''
 })
-
 // ✅ 扩展后的创建账号表单
 const createAccountForm = reactive({
   name: '',
   email: '',
   password: '',
   role: '',
-  permission_level: '',
   organization: ''
 })
-
+// 1. 定义角色选项 (和 Web 端保持一致)
+const roleOptions = computed(() => [
+  { label: t('Manager'), value: 'Manager' }, // value 传给数据库（不变），label 展示给用户（会变）
+  { label: t('Editor'), value: 'Editor' },
+  { label: t('User'), value: 'User' }
+])
 const userStore = useUserStore()
 
 function openLoginModal() {
@@ -262,7 +262,6 @@ async function submitLogin() {
       name: data.name,
       email: data.email,
       role: data.role,
-      permissionLevel: data.permission_level,
       organization: data.organization
     })
     showToast(`${t('welcome back')}, ${userStore.name}`, 'success')
@@ -283,18 +282,11 @@ async function submitCreateAccount() {
     !createAccountForm.email ||
     !createAccountForm.password ||
     !createAccountForm.role ||
-    !createAccountForm.permission_level ||
     !createAccountForm.organization
   ) {
     showToast(t('Please fill in all fields'), 'warning')
     return
   }
-
-  if (createAccountForm.role.trim() === 'Administrator') {
-  showToast(t('Administrator role is not allowed'), 'danger')
-  return
-}
-
 
   loading.value = true
   try {
@@ -306,7 +298,6 @@ async function submitCreateAccount() {
         email: createAccountForm.email,
         password: createAccountForm.password,
         role: createAccountForm.role,
-        permission_level: createAccountForm.permission_level,
         organization: createAccountForm.organization
       })
     })
@@ -343,7 +334,6 @@ function closeCreateAccountModal() {
   createAccountForm.email = ''
   createAccountForm.password = ''
   createAccountForm.role = ''
-  createAccountForm.permission_level = ''
   createAccountForm.organization = ''
   loading.value = false
 }
